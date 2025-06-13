@@ -53,7 +53,7 @@ export function TotalMoneyChart({
   dateJoined: Date;
 }) {
   return (
-    <div className="space-y-4">
+    <div className="896:space-y-4 -my-4 896:my-0">
       <FlowChartCard
         data={data}
         dateJoined={dateJoined}
