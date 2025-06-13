@@ -56,7 +56,11 @@ import { ListState } from "@/lib/server/supabase/types";
 import { useMoneyState } from "@/lib/stores/money-state";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, useNavigate, useRouteContext } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  useNavigate,
+  useRouteContext,
+} from "@tanstack/react-router";
 import { OTPInput } from "input-otp";
 import { Settings } from "lucide-react";
 import { useState } from "react";
@@ -100,7 +104,7 @@ function SettingsComponent() {
   const navigate = useNavigate();
   const settings = useSuspenseQuery(userSettingsQueryOptions());
   const [theme, setTheme] = useState<"dark" | "light">(
-    localStorage.theme as "dark" | "light",
+    localStorage.theme as "dark" | "light"
   );
   const [openPINDialog, setOpenPINDialog] = useState(false);
   const { asterisk, setAsterisk } = useMoneyState();
@@ -154,7 +158,9 @@ function SettingsComponent() {
       <div className="text-muted-foreground space-y-1 px-4 text-sm">
         <div>
           <span>Joined </span>
-          <TimeInfo createdAt={user?.createdAt ?? new Date().toLocaleString()} />{" "}
+          <TimeInfo
+            createdAt={user?.createdAt ?? new Date().toLocaleString()}
+          />{" "}
           <ClockPlus className="inline size-4" />
         </div>
         <div>
@@ -166,7 +172,7 @@ function SettingsComponent() {
         </div>
       </div>
       <Separator />
-      <div className="space-y-4 px-4">
+      <div className="896:space-y-4 896:px-4 -my-4 896:my-0">
         <SettingBar
           label="List Sorting"
           component={(id) => (
@@ -176,7 +182,10 @@ function SettingsComponent() {
                 flow: settings.data ? settings.data.flow : "desc",
                 sortBy: settings.data ? settings.data.sortBy : "date",
                 setState: (state) => {
-                  handleUpdateUserSettings.mutate({ ...settings.data, ...state });
+                  handleUpdateUserSettings.mutate({
+                    ...settings.data,
+                    ...state,
+                  });
                 },
               }}
               id={id}
@@ -210,7 +219,6 @@ function SettingsComponent() {
             />
           </DialogContent>
         </Dialog>
-
         <SettingBar
           label="Money Visibility"
           component={(id) => (
@@ -245,8 +253,7 @@ function SettingsComponent() {
           )}
         />
       </div>
-      <Separator />
-      <div className="flex flex-col gap-4 px-4">
+      <div className="flex flex-col gap-4 px-4 896:border-t pt-4">
         <ActionConfirmDialog
           confirm={() => {}}
           desc="Are you sure to permanentaly delete your account?"
@@ -281,25 +288,14 @@ function SettingsComponent() {
 function SettingBar({
   label,
   component,
-  card,
 }: {
   label: string;
   component?: (id: string) => React.ReactNode;
-  card?: React.ReactNode;
 }) {
   const id = useId();
-  if (card)
-    return (
-      <div className="bg-muted/50 flex w-full flex-col items-center justify-between gap-4 rounded-3xl p-4">
-        <div className="flex w-full items-center justify-between">
-          <Label htmlFor={id}>{label}</Label>
-          {component ? component(id) : null}
-        </div>
-        <div className="w-full">{card}</div>
-      </div>
-    );
+
   return (
-    <div className="bg-muted/50 grid grid-cols-[12fr_1fr] gap-4 rounded-3xl p-4">
+    <div className="bg-muted/25 grid grid-cols-[12fr_1fr] gap-4 896:rounded-3xl p-4 border-b 896:border">
       <Label className="place-content-stretch truncate" htmlFor={id}>
         {label}
       </Label>
@@ -347,7 +343,10 @@ function ListSorterDropdown({
   listState: { flow, sortBy, setState },
   pending,
   ...props
-}: React.ComponentProps<"button"> & { listState: ListState; pending: boolean }) {
+}: React.ComponentProps<"button"> & {
+  listState: ListState;
+  pending: boolean;
+}) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -356,13 +355,19 @@ function ListSorterDropdown({
           {sortBy === "amount" ? <DollarSign /> : null}
           {sortBy === "date" ? <Calendar /> : null}
           <span className="capitalize">{sortBy}</span>
-          <ChevronDownIcon className="-me-1 opacity-60" size={16} aria-hidden="true" />
+          <ChevronDownIcon
+            className="-me-1 opacity-60"
+            size={16}
+            aria-hidden="true"
+          />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuRadioGroup
           value={sortBy}
-          onValueChange={(v) => setState({ flow, sortBy: v as "date" | "amount" })}
+          onValueChange={(v) =>
+            setState({ flow, sortBy: v as "date" | "amount" })
+          }
         >
           <DropdownMenuRadioItem value="date">Date</DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="amount">Amount</DropdownMenuRadioItem>
