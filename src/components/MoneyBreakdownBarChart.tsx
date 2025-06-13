@@ -45,7 +45,7 @@ export function MoneyBreakdownBarChart({ data }: { data: Analytics }) {
     "total"
   );
   return (
-    <Card className="bg-muted/50 896:rounded-3xl ">
+    <Card className="bg-muted/25 896:rounded-3xl border-b 896:border">
       <CardHeader className="flex items-start gap-2 space-y-0 p-0 px-4 sm:flex-row">
         <div className="grid flex-1 gap-1">
           <CardTitle>Money Breakdown</CardTitle>
