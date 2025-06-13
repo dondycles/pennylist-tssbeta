@@ -8,9 +8,15 @@ import {
 } from "./animate-ui/radix/dialog";
 import Slot from "./Slot";
 
-export default function Locker({ PIN }: { PIN?: string | null }) {
-  const [unLocked, setUnlocked] = useState(false);
-
+export default function Locker({
+  PIN,
+  unLocked,
+  setUnlocked,
+}: {
+  PIN?: string | null;
+  unLocked: boolean;
+  setUnlocked: (state: boolean) => void;
+}) {
   return (
     <Dialog open={!unLocked && Boolean(PIN)} onOpenChange={setUnlocked}>
       <DialogContent
