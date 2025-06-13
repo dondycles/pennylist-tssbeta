@@ -1,11 +1,34 @@
 import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getSupabaseServerClient } from "@/lib/server/supabase";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { LoaderCircle } from "lucide-react";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
+
+export const signupSchema = z
+  .object({
+    email: z.string().email("Invalid email address"),
+    password: z.string().nonempty("Password is required"),
+    confirm_password: z.string().nonempty("Confirm password is required"),
+  })
+  .refine((data) => data.password === data.confirm_password, {
+    message: "Passwords do not match",
+  });
 
 export const signupFn = createServerFn({ method: "POST" })
   .validator((d: { email: string; password: string }) => d)
@@ -16,13 +39,7 @@ export const signupFn = createServerFn({ method: "POST" })
       password: data.password,
     });
 
-    if (error) {
-      console.error(error);
-      return {
-        error: true,
-        message: error.message,
-      };
-    }
+    if (error) throw new Error(error.message);
   });
 
 export const Route = createFileRoute("/(auth)/signup")({
@@ -30,86 +47,103 @@ export const Route = createFileRoute("/(auth)/signup")({
 });
 
 function SignupForm() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (isLoading) return;
+  const form = useForm<z.infer<typeof signupSchema>>({
+    resolver: zodResolver(signupSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      confirm_password: "",
+    },
+  });
 
-    const formData = new FormData(e.currentTarget);
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
-    const confirmPassword = formData.get("confirm_password") as string;
-
-    if (!email || !password || !confirmPassword) return;
-
-    if (password !== confirmPassword) {
-      setErrorMessage("Passwords do not match");
-      return;
-    }
-
-    setIsLoading(true);
-    setErrorMessage("");
-    const data = await signupFn({ data: { email, password } });
-    if (!data) {
+  const mutateSignup = useMutation({
+    mutationFn: async (creds: z.infer<typeof signupSchema>) =>
+      await signupFn({ data: creds }),
+    onError: (error) => {
+      toast.error(error.message);
+    },
+    onSuccess: () => {
       router.invalidate();
-      window.location.reload();
-      return;
-    }
-    setIsLoading(false);
-    setErrorMessage(data.message);
-  };
+      window.location.reload(); // Redirect to the list page after successful login
+    },
+  });
 
   return (
     <div className="flex flex-col gap-6">
-      <form onSubmit={handleSubmit}>
-        <div className="flex flex-col gap-6">
-          <h1 className="text-center text-xl font-bold">Sign up for pennylist.</h1>
-          <div className="flex flex-col gap-5">
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit((creds) => {
+            mutateSignup.mutate(creds);
+          })}
+        >
+          <div className="flex flex-col gap-6">
+            <h1 className="text-center text-xl font-bold">
+              Sign up for pennylist.
+            </h1>
+            <div className="flex flex-col gap-5">
+              <FormField
+                control={form.control}
                 name="email"
-                type="email"
-                placeholder="hello@example.com"
-                readOnly={isLoading}
-                required
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Email" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
+              <FormField
+                control={form.control}
                 name="password"
-                type="password"
-                placeholder="Password"
-                readOnly={isLoading}
-                required
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Password"
+                        type="password"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="confirm_password">Confirm Password</Label>
-              <Input
-                id="confirm_password"
+              <FormField
+                control={form.control}
                 name="confirm_password"
-                type="password"
-                placeholder="Confirm Password"
-                readOnly={isLoading}
-                required
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Confirm Password"
+                        type="password"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
+
+              <Button
+                type="submit"
+                className="mt-2 w-full"
+                disabled={mutateSignup.isPending}
+              >
+                {mutateSignup.isPending && (
+                  <LoaderCircle className="animate-spin" />
+                )}
+                {mutateSignup.isPending ? "Signing up..." : "Sign up"}
+              </Button>
             </div>
-            <Button type="submit" className="mt-2 w-full" disabled={isLoading}>
-              {isLoading && <LoaderCircle className="animate-spin" />}
-              {isLoading ? "Signing up..." : "Sign up"}
-            </Button>
           </div>
-          {errorMessage && (
-            <span className="text-destructive text-center text-sm">{errorMessage}</span>
-          )}
-        </div>
-      </form>
+        </form>
+      </Form>
 
       <div className="text-center text-sm">
         Already have an account?{" "}

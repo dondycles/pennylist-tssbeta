@@ -75,9 +75,12 @@ export default function MoneyForm({
 
       if (deepView) {
         if (initialData)
-          queryClient.invalidateQueries({ queryKey: ["money", initialData.id] });
+          queryClient.invalidateQueries({
+            queryKey: ["money", initialData.id],
+          });
       } else {
-        if (user) queryClient.invalidateQueries({ queryKey: ["moneys", user.id] });
+        if (user)
+          queryClient.invalidateQueries({ queryKey: ["moneys", user.id] });
       }
       close();
     },
@@ -102,7 +105,9 @@ export default function MoneyForm({
               <FormLabel>Name</FormLabel>
               <FormControl>
                 <Input
-                  style={{ color: moneyForm.watch("color") ?? "var(--foreground)" }}
+                  style={{
+                    color: moneyForm.watch("color") ?? "var(--foreground)",
+                  }}
                   placeholder="Name"
                   {...field}
                 />
@@ -120,7 +125,9 @@ export default function MoneyForm({
               <FormControl>
                 <div>
                   <MoneyInput
-                    style={{ color: moneyForm.watch("color") ?? "var(--foreground)" }}
+                    style={{
+                      color: moneyForm.watch("color") ?? "var(--foreground)",
+                    }}
                     className="w-full"
                     type="number"
                     placeholder="Amount"
@@ -135,7 +142,8 @@ export default function MoneyForm({
                             id="add"
                             ref={add}
                             style={{
-                              color: moneyForm.watch("color") ?? "var(--foreground)",
+                              color:
+                                moneyForm.watch("color") ?? "var(--foreground)",
                             }}
                             className="w-full"
                             type="number"
@@ -144,7 +152,8 @@ export default function MoneyForm({
                               if (deduct.current) deduct.current.value = "";
                               moneyForm.setValue(
                                 "amount",
-                                Number(e.currentTarget.value) + initialData.amount,
+                                Number(e.currentTarget.value) +
+                                  initialData.amount
                               );
                               moneyForm.trigger("amount");
                             }}
@@ -156,7 +165,8 @@ export default function MoneyForm({
                             id="deduct"
                             ref={deduct}
                             style={{
-                              color: moneyForm.watch("color") ?? "var(--foreground)",
+                              color:
+                                moneyForm.watch("color") ?? "var(--foreground)",
                             }}
                             className="w-full"
                             type="number"
@@ -165,7 +175,8 @@ export default function MoneyForm({
                               if (add.current) add.current.value = "";
                               moneyForm.setValue(
                                 "amount",
-                                initialData.amount - Number(e.currentTarget.value),
+                                initialData.amount -
+                                  Number(e.currentTarget.value)
                               );
                             }}
                           />
@@ -193,7 +204,10 @@ export default function MoneyForm({
               <FormLabel>Color</FormLabel>
               <FormControl>
                 <div className="flex flex-col items-center gap-2">
-                  <ColorPicker color={field.value ?? ""} setColor={field.onChange} />
+                  <ColorPicker
+                    color={field.value ?? ""}
+                    setColor={field.onChange}
+                  />
                   <div className="flex w-full items-center justify-center gap-2">
                     <Input
                       style={{ color: field.value ?? "var(--foreground)" }}
@@ -239,7 +253,9 @@ export default function MoneyForm({
         <div className="flex w-full flex-col gap-2">
           {initialData ? (
             <ActionConfirmDialog
-              confirm={moneyForm.handleSubmit((money) => handleMoney.mutate(money))}
+              confirm={moneyForm.handleSubmit((money) =>
+                handleMoney.mutate(money)
+              )}
               desc="Are you sure to make these changes?"
               title="Edit"
             >

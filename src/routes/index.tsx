@@ -37,8 +37,9 @@ function Home() {
   ];
 
   return (
-    <div className="flex w-full flex-col gap-16 p-4 pt-[8dvh]">
+    <div className="flex w-full flex-col p-4 pt-[8dvh]">
       <div className="mx-auto flex w-full max-w-4xl flex-col items-center gap-4 text-center">
+        <img src="skeleton.png" className="size-32 not-dark:invert mb-16" />
         <h1 className="text-4xl font-bold sm:text-6xl">
           Avoid becoming penniless, start using pennylist.
         </h1>
@@ -50,7 +51,12 @@ function Home() {
             <Button type="button" asChild className="mb-2 w-fit">
               <Link to="/list">Go to List</Link>
             </Button>
-            <Button asChild type="button" className="w-fit" variant="destructive">
+            <Button
+              asChild
+              type="button"
+              className="w-fit"
+              variant="destructive"
+            >
               <Link to="/logout">Sign out</Link>
             </Button>
           </div>
@@ -61,7 +67,10 @@ function Home() {
         )}
         <div className="mt-16 space-y-4 text-left">
           {features.map((f, i) => (
-            <div className="w-full max-w-lg rounded-3xl border p-4" key={`${i}-f.title`}>
+            <div
+              className="w-full max-w-lg rounded-3xl border p-4"
+              key={`${i}-f.title`}
+            >
               <p className="text-xl font-bold">{f.title}</p>
               <p className="text-muted-foreground">{f.desc}</p>
             </div>

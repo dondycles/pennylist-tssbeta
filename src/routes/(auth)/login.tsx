@@ -6,6 +6,25 @@ import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { LoaderCircle } from "lucide-react";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
+
+export const loginSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().nonempty("Password is required"),
+});
 
 export const Route = createFileRoute("/(auth)/login")({
   component: LoginForm,
@@ -20,77 +39,86 @@ export const loginFn = createServerFn({ method: "POST" })
       password: data.password,
     });
 
-    if (error) {
-      return {
-        error: true,
-        message: error.message,
-      };
-    }
+    if (error) throw new Error(error.message);
   });
 
 function LoginForm() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const form = useForm<z.infer<typeof loginSchema>>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
   const router = useRouter();
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (isLoading) return;
 
-    const formData = new FormData(e.currentTarget);
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
-    if (!email || !password) return;
-    setIsLoading(true);
-    setErrorMessage("");
-
-    const data = await loginFn({ data: { email, password } });
-    if (!data) {
+  const mutateLogin = useMutation({
+    mutationFn: async (creds: z.infer<typeof loginSchema>) =>
+      await loginFn({ data: creds }),
+    onError: (error) => {
+      toast.error(error.message);
+    },
+    onSuccess: () => {
       router.invalidate();
-      window.location.reload();
-      return;
-    }
-    setIsLoading(false);
-    setErrorMessage(data.message);
-  };
+      window.location.reload(); // Redirect to the list page after successful login
+    },
+  });
 
   return (
     <div className="flex flex-col gap-6">
-      <form onSubmit={handleSubmit}>
-        <div className="flex flex-col gap-6">
-          <h1 className="text-center text-xl font-bold">Welcome to pennylist.</h1>
-          <div className="flex flex-col gap-5">
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit((creds) => mutateLogin.mutate(creds))}
+        >
+          <div className="flex flex-col gap-6">
+            <h1 className="text-center text-xl font-bold">
+              Welcome to pennylist.
+            </h1>
+            <div className="flex flex-col gap-5">
+              <FormField
+                control={form.control}
                 name="email"
-                type="email"
-                placeholder="hello@example.com"
-                readOnly={isLoading}
-                required
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Email" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
+              <FormField
+                control={form.control}
                 name="password"
-                type="password"
-                placeholder="Enter password here"
-                readOnly={isLoading}
-                required
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Password"
+                        type="password"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
+              <Button
+                type="submit"
+                className="mt-2 w-full"
+                disabled={mutateLogin.isPending}
+              >
+                {mutateLogin.isPending && (
+                  <LoaderCircle className="animate-spin" />
+                )}
+                {mutateLogin.isPending ? "Logging in..." : "Login"}
+              </Button>
             </div>
-            <Button type="submit" className="mt-2 w-full" disabled={isLoading}>
-              {isLoading && <LoaderCircle className="animate-spin" />}
-              {isLoading ? "Logging in..." : "Login"}
-            </Button>
           </div>
-          {errorMessage && (
-            <span className="text-destructive text-center text-sm">{errorMessage}</span>
-          )}
-        </div>
-      </form>
+        </form>
+      </Form>
 
       <div className="text-center text-sm">
         Don&apos;t have an account?{" "}
