@@ -44,8 +44,7 @@ export default function FloatingNav() {
               </Link>
             </Button>
           </div>
-
-          <div key="/history" data-value="/history">
+          <div key="/logs" data-value="/logs">
             <Button
               className="hover:bg-transparent"
               asChild

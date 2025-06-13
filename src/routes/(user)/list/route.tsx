@@ -7,7 +7,7 @@ export const Route = createFileRoute("/(user)/list")({
 
 function RouteComponent() {
   return (
-    <Scrollable>
+    <Scrollable showScrollTop>
       <Outlet />
     </Scrollable>
   );

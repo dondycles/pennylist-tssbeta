@@ -89,12 +89,16 @@ export function TotalMoneyChart({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuGroup>
-              <DropdownMenuItem onClick={() => setFilter({ type: "daily", freq: "7" })}>
+              <DropdownMenuItem
+                onClick={() => setFilter({ type: "daily", freq: "7" })}
+              >
                 <p className="flex-1 text-left">Daily</p>
                 {filter.type === "daily" ? <Check /> : null}
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => setFilter({ type: "monthly", freq: "sincejoined" })}
+                onClick={() =>
+                  setFilter({ type: "monthly", freq: "sincejoined" })
+                }
               >
                 <p className="flex-1 text-left"> Monthly</p>
                 {filter.type === "monthly" ? <Check /> : null}
@@ -107,17 +111,23 @@ export function TotalMoneyChart({
                 hidden={filter.type === "monthly"}
               >
                 <p className="flex-1 text-left">7</p>
-                {filter.type === "daily" && filter.freq === "7" ? <Check /> : null}
+                {filter.type === "daily" && filter.freq === "7" ? (
+                  <Check />
+                ) : null}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => setFilter({ freq: "30", type: "daily" })}
                 hidden={filter.type === "monthly"}
               >
                 <p className="flex-1 text-left">30</p>
-                {filter.type === "daily" && filter.freq === "30" ? <Check /> : null}
+                {filter.type === "daily" && filter.freq === "30" ? (
+                  <Check />
+                ) : null}
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => setFilter({ freq: "sincejoined", type: filter.type })}
+                onClick={() =>
+                  setFilter({ freq: "sincejoined", type: filter.type })
+                }
               >
                 <p className="flex-1 text-left">Since Joined</p>
                 {filter.freq === "sincejoined" ? <Check /> : null}
@@ -188,7 +198,8 @@ export function TotalMoneyChart({
                       labelFormatter={(value) => {
                         return new Date(value).toLocaleDateString("en-US", {
                           month: "short",
-                          day: filter.type === "monthly" ? undefined : "numeric",
+                          day:
+                            filter.type === "monthly" ? undefined : "numeric",
                         });
                       }}
                       indicator="dot"
@@ -212,7 +223,13 @@ export function TotalMoneyChart({
             >
               <AreaChart data={filteredData}>
                 <defs>
-                  <linearGradient id="totalAdditions" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient
+                    id="totalAdditions"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                  >
                     <stop
                       offset="5%"
                       stopColor="var(--chart-totalAdditions)"
@@ -261,7 +278,8 @@ export function TotalMoneyChart({
                       labelFormatter={(value) => {
                         return new Date(value).toLocaleDateString("en-US", {
                           month: "short",
-                          day: filter.type === "monthly" ? undefined : "numeric",
+                          day:
+                            filter.type === "monthly" ? undefined : "numeric",
                         });
                       }}
                       indicator="dot"
@@ -287,7 +305,13 @@ export function TotalMoneyChart({
             >
               <AreaChart data={filteredData}>
                 <defs>
-                  <linearGradient id="totalDeductions" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient
+                    id="totalDeductions"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                  >
                     <stop
                       offset="5%"
                       stopColor="var(--chart-totalDeductions)"
@@ -322,7 +346,8 @@ export function TotalMoneyChart({
                       labelFormatter={(value) => {
                         return new Date(value).toLocaleDateString("en-US", {
                           month: "short",
-                          day: filter.type === "monthly" ? undefined : "numeric",
+                          day:
+                            filter.type === "monthly" ? undefined : "numeric",
                         });
                       }}
                       indicator="dot"

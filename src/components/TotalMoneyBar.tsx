@@ -14,7 +14,8 @@ import { Button } from "./ui/button";
 export default function TotalMoneyBar() {
   const { queryClient, user } = useRouteContext({ from: "__root__" });
   const { total } = useMoneyState();
-  const { sender, receivers, selectForTransfer, reset, cancel } = useTransferState();
+  const { sender, receivers, selectForTransfer, reset, cancel } =
+    useTransferState();
   const fees = _.sum(receivers?.map((r) => r.fee ?? 0));
   const cashIns = _.sum(receivers?.map((r) => r.cashIn ?? 0));
   const invalid = (sender?.amount ?? 0) - fees - cashIns < 0;
@@ -55,6 +56,7 @@ export default function TotalMoneyBar() {
 
   return (
     <div
+      id="top"
       className={`bg-background w-full rounded-b-3xl p-4 text-center shadow-xl dark:bg-neutral-900`}
     >
       {sender ? (

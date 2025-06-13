@@ -29,7 +29,10 @@ export default function Amount({
   });
 
   return (
-    <span style={{ color: color ?? "" }} className={cn("text-2xl font-black", className)}>
+    <span
+      style={{ color: color ?? "" }}
+      className={cn("text-2xl font-black", className)}
+    >
       {locked
         ? asteriskedAmount
         : moneyState.asterisk
