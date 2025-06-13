@@ -176,7 +176,7 @@ function FlowChartCard({
         ) : (
           <ChartContainer
             config={chartConfig}
-            className="aspect-auto h-52 w-full"
+            className="aspect-auto h-40 w-full"
           >
             <AreaChart data={filteredData}>
               <defs>

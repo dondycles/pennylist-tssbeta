@@ -80,7 +80,7 @@ export function MoneyBreakdownBarChart({ data }: { data: Analytics }) {
       <CardContent>
         <ChartContainer
           config={chartConfig}
-          className="aspect-auto h-144 w-full"
+          className="aspect-auto h-100 w-full"
         >
           <BarChart
             accessibilityLayer
@@ -125,10 +125,7 @@ export function MoneyBreakdownBarChart({ data }: { data: Analytics }) {
               }
             />
 
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
-            />
+            <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
             <Bar
               hide={type !== "incomings"}
               dataKey="totalAdditions"
