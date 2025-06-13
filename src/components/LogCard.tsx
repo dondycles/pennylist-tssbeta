@@ -50,7 +50,7 @@ export default function LogCard({
   } = getDiff("totalMoney");
 
   return (
-    <div className="w-full bg-muted/25 896:rounded-3xl p-4 pt-2 mb-4">
+    <div className="w-full bg-muted/25 896:rounded-3xl p-4  mb-4">
       {/* <pre>{log.moneyId}</pre>
       <pre>{JSON.stringify(log.transferDetails, null, 2)}</pre> */}
       <div className="text-muted-foreground mt-1 flex items-center gap-1 text-sm">
