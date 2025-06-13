@@ -50,112 +50,118 @@ export default function LogCard({
   } = getDiff("totalMoney");
 
   return (
-    <div className="w-full pb-4 not-first:pt-4 not-last:border-b">
+    <div className="w-full bg-muted/25 896:rounded-3xl p-4 pt-2 mb-4">
       {/* <pre>{log.moneyId}</pre>
       <pre>{JSON.stringify(log.transferDetails, null, 2)}</pre> */}
-      <div className="w-full px-4">
-        <p className="font-bold capitalize">
-          {(log.reason ?? log.type === "transfer")
-            ? !isReceiver
-              ? log.reason
-              : `Transfer from ${log.transferDetails?.sender.name}`
-            : log.type}
-        </p>
-        <div className="text-muted-foreground mt-1 flex items-center gap-1 text-sm">
-          <Link
-            className={`${!log.money && "text-destructive"}`}
-            disabled={!log.money}
-            to="/list/$id"
-            params={{ id: log.moneyId as string }}
-          >
-            <Banknote className="inline size-4" />
-            <span className="ml-1 inline text-sm">{log.money?.name ?? "Deleted"}</span>
-          </Link>
-          |
-          <Clock className="size-4" />
-          <TimeInfo createdAt={log.created_at} />
-        </div>
-        {!isReceiver && log.transferDetails ? (
-          <div className="bg-muted/50 mt-4 rounded-3xl p-4">
-            <p className="text-muted-foreground text-sm">Receivers</p>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Money</TableHead>
-                  <TableHead>Cash In</TableHead>
-                  <TableHead>Fee</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {log.transferDetails.receivers.map((r) => (
-                  <TableRow
-                    style={{ color: r.color ?? "var(--foreground)" }}
-                    key={`receiver-${r.id}`}
-                  >
-                    <TableCell className="font-medium">
-                      <Link to="/list/$id" params={{ id: r.id as string }}>
-                        {r.name}
-                      </Link>
-                    </TableCell>
-                    <TableCell>
-                      {" "}
-                      <Amount
-                        className="text-sm font-light"
-                        amount={r.cashIn ?? 0}
-                        settings={{ sign: true }}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Amount
-                        className="text-sm font-light"
-                        amount={r.fee ?? 0}
-                        settings={{ sign: true }}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-              <TableFooter>
-                <TableRow>
-                  <TableCell colSpan={2}>Total Damage</TableCell>
+      <div className="text-muted-foreground mt-1 flex items-center gap-1 text-sm">
+        <Link
+          style={{
+            color: !log.money
+              ? "var(--destructive)"
+              : (log.changes.current.color ?? "var(--foreground)"),
+          }}
+          disabled={!log.money}
+          to="/list/$id"
+          params={{ id: log.moneyId as string }}
+        >
+          <Banknote className="inline size-4" />
+          <span className="ml-1 inline text-sm">
+            {log.money?.name ?? "Deleted"}
+          </span>
+        </Link>
+        |
+        <Clock className="size-4" />
+        <TimeInfo createdAt={log.created_at} />
+      </div>
+      <p className="capitalize text-muted-foreground">
+        {(log.reason ?? log.type === "transfer")
+          ? !isReceiver
+            ? log.reason
+            : `Transfer from ${log.transferDetails?.sender.name}`
+          : log.type}
+      </p>
+      <div className="mt-4 grid grid-rows-[1fr_1fr] gap-4 sm:grid-cols-[1fr_1fr] sm:grid-rows-1">
+        <Data title="Previous" data={log.changes.prev} />
+        <Data
+          title="Current"
+          data={log.changes.current}
+          moneyDiffComponent={
+            moneyHasDifference ? (
+              <Difference
+                difference={moneyDifference}
+                isIncrease={moneyIsIncrease}
+                percentChange={moneyPercentChange}
+              />
+            ) : null
+          }
+          totalMoneyDiffComponent={
+            totalMoneyHasDifference ? (
+              <Difference
+                difference={totalMoneyDifference}
+                isIncrease={totalMoneyIsIncrease}
+                percentChange={totalMoneyPercentChange}
+              />
+            ) : null
+          }
+        />
+      </div>
+      {!isReceiver && log.transferDetails ? (
+        <div className="bg-muted/50 mt-4 rounded-3xl p-4">
+          <p className="text-muted-foreground text-sm">Receivers</p>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Money</TableHead>
+                <TableHead>Cash In</TableHead>
+                <TableHead>Fee</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {log.transferDetails.receivers.map((r) => (
+                <TableRow
+                  style={{ color: r.color ?? "var(--foreground)" }}
+                  key={`receiver-${r.id}`}
+                >
+                  <TableCell className="font-medium">
+                    <Link to="/list/$id" params={{ id: r.id as string }}>
+                      {r.name}
+                    </Link>
+                  </TableCell>
+                  <TableCell>
+                    {" "}
+                    <Amount
+                      className="text-sm font-light"
+                      amount={r.cashIn ?? 0}
+                      settings={{ sign: true }}
+                    />
+                  </TableCell>
                   <TableCell>
                     <Amount
-                      className="text-sm font-medium"
-                      amount={_.sum(log.transferDetails.receivers.map((r) => r.fee ?? 0))}
+                      className="text-sm font-light"
+                      amount={r.fee ?? 0}
                       settings={{ sign: true }}
                     />
                   </TableCell>
                 </TableRow>
-              </TableFooter>
-            </Table>
-          </div>
-        ) : null}
-        <div className="mt-4 grid grid-rows-[1fr_1fr] gap-4 sm:grid-cols-[1fr_1fr] sm:grid-rows-1">
-          <Data title="Previous" data={log.changes.prev} />
-          <Data
-            title="Current"
-            data={log.changes.current}
-            moneyDiffComponent={
-              moneyHasDifference ? (
-                <Difference
-                  difference={moneyDifference}
-                  isIncrease={moneyIsIncrease}
-                  percentChange={moneyPercentChange}
-                />
-              ) : null
-            }
-            totalMoneyDiffComponent={
-              totalMoneyHasDifference ? (
-                <Difference
-                  difference={totalMoneyDifference}
-                  isIncrease={totalMoneyIsIncrease}
-                  percentChange={totalMoneyPercentChange}
-                />
-              ) : null
-            }
-          />
+              ))}
+            </TableBody>
+            <TableFooter>
+              <TableRow>
+                <TableCell colSpan={2}>Total Damage</TableCell>
+                <TableCell>
+                  <Amount
+                    className="text-sm font-medium"
+                    amount={_.sum(
+                      log.transferDetails.receivers.map((r) => r.fee ?? 0)
+                    )}
+                    settings={{ sign: true }}
+                  />
+                </TableCell>
+              </TableRow>
+            </TableFooter>
+          </Table>
         </div>
-      </div>
+      ) : null}
     </div>
   );
 }
@@ -209,7 +215,9 @@ function Difference({
     <>
       {" "}
       (
-      <span className={`inline ${isIncrease ? "text-green-500" : "text-destructive"} `}>
+      <span
+        className={`inline ${isIncrease ? "text-green-500" : "text-destructive"} `}
+      >
         {isIncrease ? "+" : "-"}
       </span>
       <Amount
