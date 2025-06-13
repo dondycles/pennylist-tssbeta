@@ -45,7 +45,7 @@ export default function FloatingNav() {
             </Button>
           </div>
 
-          <div key="/logs" data-value="/logs">
+          <div key="/history" data-value="/history">
             <Button
               className="hover:bg-transparent"
               asChild
@@ -53,7 +53,7 @@ export default function FloatingNav() {
               size={"icon"}
               variant={"ghost"}
             >
-              <Link to="/logs" search={{ flow: "desc" }}>
+              <Link to="/history" search={{ flow: "desc" }}>
                 <FileClock className="size-5" />
               </Link>
             </Button>

@@ -14,7 +14,11 @@ import {
 } from "./animate-ui/radix/dialog";
 import { Badge } from "./ui/badge";
 
-export default function LogSearchInput({ moneyIds }: { moneyIds: React.ReactNode }) {
+export default function LogSearchInput({
+  moneyIds,
+}: {
+  moneyIds: React.ReactNode;
+}) {
   const id = useId();
   return (
     <div className="*:not-first:mt-2">
@@ -35,8 +39,8 @@ export default function LogSearchInput({ moneyIds }: { moneyIds: React.ReactNode
             <DialogHeader>
               <DialogTitle>Filter Logs</DialogTitle>
               <DialogDescription>
-                Use the filters to narrow down your log search results. You can filter by
-                type, money, and more.
+                Use the filters to narrow down your log search results. You can
+                filter by type, money, and more.
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
@@ -55,8 +59,10 @@ export default function LogSearchInput({ moneyIds }: { moneyIds: React.ReactNode
                       key={type}
                     >
                       <Link
-                        to="/logs"
-                        search={{ type: type as "add" | "edit" | "delete" | "transfer" }}
+                        to="/history"
+                        search={{
+                          type: type as "add" | "edit" | "delete" | "transfer",
+                        }}
                       >
                         {type}
                       </Link>

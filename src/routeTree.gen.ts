@@ -17,8 +17,8 @@ import { Route as authSignupRouteImport } from './routes/(auth)/signup'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
 import { Route as userListRouteRouteImport } from './routes/(user)/list/route'
 import { Route as userSettingsIndexRouteImport } from './routes/(user)/settings/index'
-import { Route as userLogsIndexRouteImport } from './routes/(user)/logs/index'
 import { Route as userListIndexRouteImport } from './routes/(user)/list/index'
+import { Route as userHistoryIndexRouteImport } from './routes/(user)/history/index'
 import { Route as userAnalyticsIndexRouteImport } from './routes/(user)/analytics/index'
 import { Route as userListIdRouteRouteImport } from './routes/(user)/list/$id/route'
 import { Route as userListIdIndexRouteImport } from './routes/(user)/list/$id/index'
@@ -61,15 +61,15 @@ const userSettingsIndexRoute = userSettingsIndexRouteImport.update({
   path: '/settings/',
   getParentRoute: () => userRouteRoute,
 } as any)
-const userLogsIndexRoute = userLogsIndexRouteImport.update({
-  id: '/logs/',
-  path: '/logs/',
-  getParentRoute: () => userRouteRoute,
-} as any)
 const userListIndexRoute = userListIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => userListRouteRoute,
+} as any)
+const userHistoryIndexRoute = userHistoryIndexRouteImport.update({
+  id: '/history/',
+  path: '/history/',
+  getParentRoute: () => userRouteRoute,
 } as any)
 const userAnalyticsIndexRoute = userAnalyticsIndexRouteImport.update({
   id: '/analytics/',
@@ -95,8 +95,8 @@ export interface FileRoutesByFullPath {
   '/signup': typeof authSignupRoute
   '/list/$id': typeof userListIdRouteRouteWithChildren
   '/analytics': typeof userAnalyticsIndexRoute
+  '/history': typeof userHistoryIndexRoute
   '/list/': typeof userListIndexRoute
-  '/logs': typeof userLogsIndexRoute
   '/settings': typeof userSettingsIndexRoute
   '/list/$id/': typeof userListIdIndexRoute
 }
@@ -106,8 +106,8 @@ export interface FileRoutesByTo {
   '/login': typeof authLoginRoute
   '/signup': typeof authSignupRoute
   '/analytics': typeof userAnalyticsIndexRoute
+  '/history': typeof userHistoryIndexRoute
   '/list': typeof userListIndexRoute
-  '/logs': typeof userLogsIndexRoute
   '/settings': typeof userSettingsIndexRoute
   '/list/$id': typeof userListIdIndexRoute
 }
@@ -122,8 +122,8 @@ export interface FileRoutesById {
   '/(auth)/signup': typeof authSignupRoute
   '/(user)/list/$id': typeof userListIdRouteRouteWithChildren
   '/(user)/analytics/': typeof userAnalyticsIndexRoute
+  '/(user)/history/': typeof userHistoryIndexRoute
   '/(user)/list/': typeof userListIndexRoute
-  '/(user)/logs/': typeof userLogsIndexRoute
   '/(user)/settings/': typeof userSettingsIndexRoute
   '/(user)/list/$id/': typeof userListIdIndexRoute
 }
@@ -137,8 +137,8 @@ export interface FileRouteTypes {
     | '/signup'
     | '/list/$id'
     | '/analytics'
+    | '/history'
     | '/list/'
-    | '/logs'
     | '/settings'
     | '/list/$id/'
   fileRoutesByTo: FileRoutesByTo
@@ -148,8 +148,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/analytics'
+    | '/history'
     | '/list'
-    | '/logs'
     | '/settings'
     | '/list/$id'
   id:
@@ -163,8 +163,8 @@ export interface FileRouteTypes {
     | '/(auth)/signup'
     | '/(user)/list/$id'
     | '/(user)/analytics/'
+    | '/(user)/history/'
     | '/(user)/list/'
-    | '/(user)/logs/'
     | '/(user)/settings/'
     | '/(user)/list/$id/'
   fileRoutesById: FileRoutesById
@@ -234,19 +234,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof userSettingsIndexRouteImport
       parentRoute: typeof userRouteRoute
     }
-    '/(user)/logs/': {
-      id: '/(user)/logs/'
-      path: '/logs'
-      fullPath: '/logs'
-      preLoaderRoute: typeof userLogsIndexRouteImport
-      parentRoute: typeof userRouteRoute
-    }
     '/(user)/list/': {
       id: '/(user)/list/'
       path: '/'
       fullPath: '/list/'
       preLoaderRoute: typeof userListIndexRouteImport
       parentRoute: typeof userListRouteRoute
+    }
+    '/(user)/history/': {
+      id: '/(user)/history/'
+      path: '/history'
+      fullPath: '/history'
+      preLoaderRoute: typeof userHistoryIndexRouteImport
+      parentRoute: typeof userRouteRoute
     }
     '/(user)/analytics/': {
       id: '/(user)/analytics/'
@@ -315,14 +315,14 @@ const userListRouteRouteWithChildren = userListRouteRoute._addFileChildren(
 interface userRouteRouteChildren {
   userListRouteRoute: typeof userListRouteRouteWithChildren
   userAnalyticsIndexRoute: typeof userAnalyticsIndexRoute
-  userLogsIndexRoute: typeof userLogsIndexRoute
+  userHistoryIndexRoute: typeof userHistoryIndexRoute
   userSettingsIndexRoute: typeof userSettingsIndexRoute
 }
 
 const userRouteRouteChildren: userRouteRouteChildren = {
   userListRouteRoute: userListRouteRouteWithChildren,
   userAnalyticsIndexRoute: userAnalyticsIndexRoute,
-  userLogsIndexRoute: userLogsIndexRoute,
+  userHistoryIndexRoute: userHistoryIndexRoute,
   userSettingsIndexRoute: userSettingsIndexRoute,
 }
 
