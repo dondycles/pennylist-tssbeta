@@ -104,7 +104,7 @@ export default function LogCard({
         />
       </div>
       {!isReceiver && log.transferDetails ? (
-        <div className="bg-muted/50 mt-4 rounded-3xl p-4">
+        <div className="bg-muted/50 mt-4 rounded-2xl p-4">
           <p className="text-muted-foreground text-sm">Receivers</p>
           <Table>
             <TableHeader>
@@ -178,7 +178,7 @@ function Data({
   return (
     <div
       style={{ color: data.color ?? "var(--foreground)" }}
-      className="bg-muted/50 truncate rounded-3xl p-4"
+      className="bg-muted/50 truncate rounded-2xl p-4"
     >
       <p className="text-muted-foreground text-sm">{title}</p>
       <p className="font-bold">{data.name}</p>

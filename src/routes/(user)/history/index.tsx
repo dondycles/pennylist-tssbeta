@@ -56,12 +56,12 @@ function RouteComponent() {
             {Array.from({ length: 3 }).map((_, i) => (
               <div
                 key={`skeleton-${i}`}
-                className={`space-y-4 p-4  bg-muted/25 896:rounded-3xl`}
+                className={`space-y-4 p-4  bg-muted/25 896:rounded-2xl`}
               >
                 <Skeleton className="h-12 w-full rounded-full" />
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <Skeleton className="h-40 w-full rounded-3xl" />
-                  <Skeleton className="h-40 w-full rounded-3xl" />
+                  <Skeleton className="h-40 w-full rounded-2xl" />
+                  <Skeleton className="h-40 w-full rounded-2xl" />
                 </div>
               </div>
             ))}
