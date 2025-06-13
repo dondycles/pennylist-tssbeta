@@ -107,7 +107,10 @@ function FlowChartCard({
           return date >= startDate;
         });
   return (
-    <Card className={`896:rounded-3xl bg-muted/25 border-b 896:border`}>
+    <Card
+      style={{ backgroundColor: `var(--chart-${dataKey}-trans)` }}
+      className={`896:rounded-3xl border-b 896:border`}
+    >
       <CardHeader className="flex items-start gap-2 space-y-0 px-4 sm:flex-row">
         <div className="grid flex-1 gap-1">
           <CardTitle>Total Money Flow</CardTitle>
