@@ -45,7 +45,7 @@ export function MoneyBreakdownBarChart({ data }: { data: Analytics }) {
     "total"
   );
   return (
-    <Card className="border-b bg-transparent p-0 pb-4">
+    <Card className="bg-muted/50 896:rounded-3xl ">
       <CardHeader className="flex items-start gap-2 space-y-0 p-0 px-4 sm:flex-row">
         <div className="grid flex-1 gap-1">
           <CardTitle>Money Breakdown</CardTitle>
@@ -80,7 +80,7 @@ export function MoneyBreakdownBarChart({ data }: { data: Analytics }) {
       <CardContent>
         <ChartContainer
           config={chartConfig}
-          className="bg-muted/50 aspect-auto h-144 rounded-3xl p-4"
+          className="aspect-auto h-144 w-full"
         >
           <BarChart
             accessibilityLayer

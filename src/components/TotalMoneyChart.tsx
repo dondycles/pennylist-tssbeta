@@ -42,7 +42,9 @@ const chartConfig = {
     label: "Outgoings",
   },
 } satisfies ChartConfig;
-
+type FilterState =
+  | { type: "monthly"; freq?: "sincejoined" }
+  | { type: "daily"; freq: "7" | "30" | "sincejoined" };
 export function TotalMoneyChart({
   data,
   dateJoined,
@@ -50,10 +52,42 @@ export function TotalMoneyChart({
   data: Analytics;
   dateJoined: Date;
 }) {
-  type FilterState =
-    | { type: "monthly"; freq?: "sincejoined" }
-    | { type: "daily"; freq: "7" | "30" | "sincejoined" };
+  return (
+    <div className="space-y-4">
+      <FlowChartCard
+        data={data}
+        dateJoined={dateJoined}
+        color="var(--chart-totalMoney)"
+        dataKey="totalMoney"
+      />
+      <FlowChartCard
+        data={data}
+        dateJoined={dateJoined}
+        color="var(--chart-totalAdditions)"
+        dataKey="totalAdditions"
+      />
+      <FlowChartCard
+        data={data}
+        dateJoined={dateJoined}
+        color="var(--chart-totalDeductions)"
+        dataKey="totalDeductions"
+      />
+    </div>
+  );
+}
 
+function FlowChartCard({
+  data,
+  dateJoined,
+  color,
+  dataKey,
+}: {
+  data: Analytics;
+  dateJoined: Date;
+  color: string;
+  dataKey: string;
+}) {
+  const id = React.useId();
   const [filter, setFilter] = React.useState<FilterState>({
     type: "daily",
     freq: "7",
@@ -75,13 +109,10 @@ export function TotalMoneyChart({
           return date >= startDate;
         });
   return (
-    <Card className="border-b bg-transparent p-0 pb-4">
-      <CardHeader className="flex items-start gap-2 space-y-0 p-0 px-4 sm:flex-row">
+    <Card className={`896:rounded-3xl bg-[${color}]/5`}>
+      <CardHeader className="flex items-start gap-2 space-y-0 px-4 sm:flex-row">
         <div className="grid flex-1 gap-1">
-          <CardTitle>Changes</CardTitle>
-          <CardDescription>
-            Showing the flow of your incoming, outgoing, and total money.
-          </CardDescription>
+          <CardTitle>Total Money Flow</CardTitle>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger className="capitalize" asChild>
@@ -136,263 +167,78 @@ export function TotalMoneyChart({
           </DropdownMenuContent>
         </DropdownMenu>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent>
         {!filteredData?.length ? (
           <p className="text-muted-foreground text-center text-sm">
             No data to show as of now
           </p>
         ) : (
-          <>
-            <ChartContainer
-              config={chartConfig}
-              className="aspect-auto h-52 w-full rounded-3xl bg-[var(--chart-totalMoney)]/5 p-4"
-            >
-              <AreaChart data={filteredData}>
-                <defs>
-                  <linearGradient id="totalMoney" x1="0" y1="0" x2="0" y2="1">
-                    <stop
-                      offset="5%"
-                      stopColor="var(--chart-totalMoney)"
-                      stopOpacity={0.8}
-                    />
-                    <stop
-                      offset="95%"
-                      stopColor="var(--chart-totalMoney)"
-                      stopOpacity={0.1}
-                    />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid vertical={false} />
-                <XAxis
-                  hide
-                  dataKey="date"
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={8}
-                  minTickGap={32}
-                  tickFormatter={(value) => {
-                    const date = new Date(value);
-                    return date.toLocaleDateString("en-US", {
-                      month: "short",
-                      day: filter.type === "monthly" ? undefined : "numeric",
-                    });
-                  }}
-                />
-                <YAxis
-                  tickLine={false}
-                  axisLine={false}
-                  minTickGap={32}
-                  domain={["dataMin", "dataMax"]}
-                  tickFormatter={(value) => {
-                    const newValue = Intl.NumberFormat("en-US", {
-                      style: "currency",
-                      currency: "PHP",
-                      maximumFractionDigits: 0,
-                    }).format(value);
-                    return newValue;
-                  }}
-                />
-                <ChartTooltip
-                  cursor={false}
-                  content={
-                    <ChartTooltipContent
-                      labelFormatter={(value) => {
-                        return new Date(value).toLocaleDateString("en-US", {
-                          month: "short",
-                          day:
-                            filter.type === "monthly" ? undefined : "numeric",
-                        });
-                      }}
-                      indicator="dot"
-                    />
-                  }
-                />
-                <Area
-                  dataKey="totalMoney"
-                  stroke="var(--chart-totalMoney)"
-                  fill="url(#totalMoney)"
-                  stackId="a"
-                  isAnimationActive={false}
-                  type="bump"
-                />
-                <ChartLegend content={<ChartLegendContent />} />
-              </AreaChart>
-            </ChartContainer>
-            <ChartContainer
-              config={chartConfig}
-              className="aspect-auto h-52 w-full rounded-3xl bg-[var(--chart-totalAdditions)]/5 p-4"
-            >
-              <AreaChart data={filteredData}>
-                <defs>
-                  <linearGradient
-                    id="totalAdditions"
-                    x1="0"
-                    y1="0"
-                    x2="0"
-                    y2="1"
-                  >
-                    <stop
-                      offset="5%"
-                      stopColor="var(--chart-totalAdditions)"
-                      stopOpacity={0.8}
-                    />
-                    <stop
-                      offset="95%"
-                      stopColor="var(--chart-totalAdditions)"
-                      stopOpacity={0.1}
-                    />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid vertical={false} />
-                <XAxis
-                  hide
-                  dataKey="date"
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={8}
-                  minTickGap={32}
-                  tickFormatter={(value) => {
-                    const date = new Date(value);
-                    return date.toLocaleDateString("en-US", {
-                      month: "short",
-                      day: filter.type === "monthly" ? undefined : "numeric",
-                    });
-                  }}
-                />
-                <YAxis
-                  tickLine={false}
-                  axisLine={false}
-                  minTickGap={32}
-                  domain={[
-                    Math.min(
-                      ...filteredData?.map((item) => item.totalAdditions)
-                    ),
-                    "dataMax",
-                  ]}
-                  tickFormatter={(value) => {
-                    const newValue = Intl.NumberFormat("en-US", {
-                      style: "currency",
-                      currency: "PHP",
-                      maximumFractionDigits: 0,
-                    }).format(value);
-                    return newValue;
-                  }}
-                />
-                <ChartTooltip
-                  cursor={false}
-                  content={
-                    <ChartTooltipContent
-                      labelFormatter={(value) => {
-                        return new Date(value).toLocaleDateString("en-US", {
-                          month: "short",
-                          day:
-                            filter.type === "monthly" ? undefined : "numeric",
-                        });
-                      }}
-                      indicator="dot"
-                    />
-                  }
-                />
-
-                <Area
-                  dataKey="totalAdditions"
-                  stroke="var(--chart-totalAdditions)"
-                  fill="url(#totalAdditions)"
-                  stackId="b"
-                  isAnimationActive={false}
-                  type="bump"
-                />
-
-                <ChartLegend content={<ChartLegendContent />} />
-              </AreaChart>
-            </ChartContainer>
-            <ChartContainer
-              config={chartConfig}
-              className="aspect-auto h-52 w-full rounded-3xl bg-[var(--chart-totalDeductions)]/5 p-4"
-            >
-              <AreaChart data={filteredData}>
-                <defs>
-                  <linearGradient
-                    id="totalDeductions"
-                    x1="0"
-                    y1="0"
-                    x2="0"
-                    y2="1"
-                  >
-                    <stop
-                      offset="5%"
-                      stopColor="var(--chart-totalDeductions)"
-                      stopOpacity={0.8}
-                    />
-                    <stop
-                      offset="95%"
-                      stopColor="var(--chart-totalDeductions)"
-                      stopOpacity={0.1}
-                    />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid vertical={false} />
-                <XAxis
-                  dataKey="date"
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={8}
-                  minTickGap={32}
-                  tickFormatter={(value) => {
-                    const date = new Date(value);
-                    return date.toLocaleDateString("en-US", {
-                      month: "short",
-                      day: filter.type === "monthly" ? undefined : "numeric",
-                    });
-                  }}
-                />
-                <ChartTooltip
-                  cursor={false}
-                  content={
-                    <ChartTooltipContent
-                      labelFormatter={(value) => {
-                        return new Date(value).toLocaleDateString("en-US", {
-                          month: "short",
-                          day:
-                            filter.type === "monthly" ? undefined : "numeric",
-                        });
-                      }}
-                      indicator="dot"
-                    />
-                  }
-                />
-                <YAxis
-                  tickLine={false}
-                  axisLine={false}
-                  minTickGap={32}
-                  domain={[
-                    Math.min(
-                      ...filteredData?.map((item) => item.totalDeductions)
-                    ),
-                    "dataMax",
-                  ]}
-                  tickFormatter={(value) => {
-                    const newValue = Intl.NumberFormat("en-US", {
-                      style: "currency",
-                      currency: "PHP",
-                      maximumFractionDigits: 0,
-                    }).format(value);
-                    return newValue;
-                  }}
-                />
-                <Area
-                  dataKey="totalDeductions"
-                  stroke="var(--chart-totalDeductions)"
-                  fill="url(#totalDeductions)"
-                  stackId="c"
-                  isAnimationActive={false}
-                  type="bump"
-                />
-
-                <ChartLegend content={<ChartLegendContent />} />
-              </AreaChart>
-            </ChartContainer>
-          </>
+          <ChartContainer
+            config={chartConfig}
+            className="aspect-auto h-52 w-full"
+          >
+            <AreaChart data={filteredData}>
+              <defs>
+                <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={color} stopOpacity={0.8} />
+                  <stop offset="95%" stopColor={color} stopOpacity={0.1} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid vertical={false} />
+              <XAxis
+                hide
+                dataKey="date"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                minTickGap={32}
+                tickFormatter={(value) => {
+                  const date = new Date(value);
+                  return date.toLocaleDateString("en-US", {
+                    month: "short",
+                    day: filter.type === "monthly" ? undefined : "numeric",
+                  });
+                }}
+              />
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                minTickGap={32}
+                domain={["dataMin", "dataMax"]}
+                tickFormatter={(value) => {
+                  const newValue = Intl.NumberFormat("en-US", {
+                    style: "currency",
+                    currency: "PHP",
+                    maximumFractionDigits: 0,
+                  }).format(value);
+                  return newValue;
+                }}
+              />
+              <ChartTooltip
+                cursor={false}
+                content={
+                  <ChartTooltipContent
+                    labelFormatter={(value) => {
+                      return new Date(value).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: filter.type === "monthly" ? undefined : "numeric",
+                      });
+                    }}
+                    indicator="dot"
+                  />
+                }
+              />
+              <Area
+                dataKey={dataKey}
+                stroke={color}
+                fill={`url(#${id})`}
+                stackId="a"
+                isAnimationActive={false}
+                type="bump"
+              />
+              <ChartLegend content={<ChartLegendContent />} />
+            </AreaChart>
+          </ChartContainer>
         )}
       </CardContent>
     </Card>

@@ -14,6 +14,7 @@ import { analyticsQueryOptions } from "@/lib/queries/analytics";
 import { GetUser } from "@/lib/server/fn/user";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Suspense } from "react";
+import { Separator } from "@/components/ui/separator";
 
 function RouteComponent() {
   const { user } = Route.useRouteContext();
