@@ -81,12 +81,12 @@ function RouteComponent() {
       <Suspense
         fallback={
           <div className="w-full space-y-4 px-4">
-            <Skeleton className="h-21 w-full rounded-2xl" />
+            <Skeleton className="h-21 w-full rounded-3xl" />
             <Separator />
-            <Skeleton className="h-17 w-full rounded-2xl" />
-            <Skeleton className="h-17 w-full rounded-2xl" />
-            <Skeleton className="h-17 w-full rounded-2xl" />
-            <Skeleton className="h-17 w-full rounded-2xl" />
+            <Skeleton className="h-17 w-full rounded-3xl" />
+            <Skeleton className="h-17 w-full rounded-3xl" />
+            <Skeleton className="h-17 w-full rounded-3xl" />
+            <Skeleton className="h-17 w-full rounded-3xl" />
             <Separator />
             <Skeleton className="bg-destructive h-9 w-full rounded-full" />
           </div>
@@ -295,7 +295,7 @@ function SettingBar({
   const id = useId();
 
   return (
-    <div className="bg-muted/25 grid grid-cols-[12fr_1fr] gap-4 896:rounded-2xl p-4 border-b 896:border">
+    <div className="bg-muted/25 grid grid-cols-[12fr_1fr] gap-4 896:rounded-3xl p-4 border-b 896:border">
       <Label className="place-content-stretch truncate" htmlFor={id}>
         {label}
       </Label>
