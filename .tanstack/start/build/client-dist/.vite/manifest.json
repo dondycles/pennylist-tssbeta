@@ -1,0 +1,17 @@
+{
+  "../../~start/default-client-entry.tsx": {
+    "file": "assets/main-C1LwODVW.js",
+    "name": "main",
+    "src": "../../~start/default-client-entry.tsx",
+    "isEntry": true,
+    "dynamicImports": [
+      "node_modules/.pnpm/@serwist+window@9.0.15_typescript@5.8.3/node_modules/@serwist/window/dist/index.js"
+    ]
+  },
+  "node_modules/.pnpm/@serwist+window@9.0.15_typescript@5.8.3/node_modules/@serwist/window/dist/index.js": {
+    "file": "assets/index-BPMJhYtq.js",
+    "name": "index",
+    "src": "node_modules/.pnpm/@serwist+window@9.0.15_typescript@5.8.3/node_modules/@serwist/window/dist/index.js",
+    "isDynamicEntry": true
+  }
+}

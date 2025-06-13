@@ -15,6 +15,7 @@ import { userQueryOptions } from "@/lib/queries/user";
 import { getUser } from "@/lib/server/fn/user";
 import { useEffect } from "react";
 import { getSerwist } from "virtual:serwist";
+import appCss from "@/app.css?url";
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
@@ -46,7 +47,7 @@ export const Route = createRootRouteWithContext<{
       { name: "mobile-web-app-capable", content: "yes" },
     ],
     links: [
-      { rel: "stylesheet", href: "/src/app.css" },
+      { rel: "stylesheet", href: appCss },
       { rel: "icon", href: "/favicon.ico" },
       { rel: "apple-touch-icon", href: "/icon-256.png", sizes: "256x256" },
       { rel: "mask-icon", href: "/icon-512.png" },
