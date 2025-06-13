@@ -41,7 +41,9 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export function MoneyBreakdownBarChart({ data }: { data: Analytics }) {
-  const [type, setType] = useState<"incomings" | "outgoings" | "total">("total");
+  const [type, setType] = useState<"incomings" | "outgoings" | "total">(
+    "total"
+  );
   return (
     <Card className="border-b bg-transparent p-0 pb-4">
       <CardHeader className="flex items-center gap-2 space-y-0 p-0 px-4 sm:flex-row">
@@ -85,15 +87,15 @@ export function MoneyBreakdownBarChart({ data }: { data: Analytics }) {
             data={
               (type === "incomings" &&
                 data.groupsLogsByMoney?.sort(
-                  (a, b) => b.totalAdditions - a.totalAdditions,
+                  (a, b) => b.totalAdditions - a.totalAdditions
                 )) ||
               (type === "outgoings" &&
                 data.groupsLogsByMoney?.sort(
-                  (a, b) => b.totalDeductions - a.totalDeductions,
+                  (a, b) => b.totalDeductions - a.totalDeductions
                 )) ||
               (type === "total" &&
                 data.groupsLogsByMoney?.sort(
-                  (a, b) => b.currentData.amount - a.currentData.amount,
+                  (a, b) => b.currentData.amount - a.currentData.amount
                 )) ||
               []
             }
@@ -111,17 +113,22 @@ export function MoneyBreakdownBarChart({ data }: { data: Analytics }) {
               type="category"
             />
             <XAxis
+              domain={["dataMin", "dataMax"]}
               tickLine={false}
               axisLine={false}
               type="number"
               tickFormatter={(value) =>
-                Intl.NumberFormat("en-US", { style: "currency", currency: "PHP" }).format(
-                  value,
-                )
+                Intl.NumberFormat("en-US", {
+                  style: "currency",
+                  currency: "PHP",
+                }).format(value)
               }
             />
 
-            <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+            <ChartTooltip
+              cursor={false}
+              content={<ChartTooltipContent hideLabel />}
+            />
             <Bar
               hide={type !== "incomings"}
               dataKey="totalAdditions"

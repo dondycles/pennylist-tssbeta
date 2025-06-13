@@ -182,6 +182,7 @@ export function TotalMoneyChart({
                   tickLine={false}
                   axisLine={false}
                   minTickGap={32}
+                  domain={["dataMin", "dataMax"]}
                   tickFormatter={(value) => {
                     const newValue = Intl.NumberFormat("en-US", {
                       style: "currency",
@@ -262,6 +263,12 @@ export function TotalMoneyChart({
                   tickLine={false}
                   axisLine={false}
                   minTickGap={32}
+                  domain={[
+                    Math.min(
+                      ...filteredData?.map((item) => item.totalAdditions)
+                    ),
+                    "dataMax",
+                  ]}
                   tickFormatter={(value) => {
                     const newValue = Intl.NumberFormat("en-US", {
                       style: "currency",
@@ -358,6 +365,12 @@ export function TotalMoneyChart({
                   tickLine={false}
                   axisLine={false}
                   minTickGap={32}
+                  domain={[
+                    Math.min(
+                      ...filteredData?.map((item) => item.totalDeductions)
+                    ),
+                    "dataMax",
+                  ]}
                   tickFormatter={(value) => {
                     const newValue = Intl.NumberFormat("en-US", {
                       style: "currency",

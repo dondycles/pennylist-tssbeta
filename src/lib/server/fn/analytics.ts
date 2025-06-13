@@ -24,15 +24,34 @@ export const getAnalytics = createServerFn({ method: "GET" })
 
     if (error) throw new Error(JSON.stringify(error, null, 2));
 
-    const daysSinceJoined = differenceInCalendarDays(new Date(), user.created_at);
+    const daysSinceJoined = differenceInCalendarDays(
+      new Date(),
+      user.created_at
+    );
     const monthsSinceJoined = differenceInMonths(new Date(), user.created_at);
     function groupLogsByDate() {
       if (!data?.length) return null;
       const groupedByDate: { [key: string]: typeof data } = {};
+
       data.forEach((log) => {
-        const day = new Date(log.created_at).toLocaleDateString();
-        if (!groupedByDate[day]) return (groupedByDate[day] = [log]);
-        groupedByDate[day] = [...groupedByDate[day], log];
+        if (log.type === "transfer") {
+          if (log.transferDetails?.sender.id === log.moneyId) {
+            const day = new Date(log.created_at).toLocaleDateString();
+            if (!groupedByDate[day]) {
+              groupedByDate[day] = [log];
+            } else {
+              groupedByDate[day] = [...groupedByDate[day], log];
+            }
+          }
+        } else {
+          // For non-transfer logs, add them as usual
+          const day = new Date(log.created_at).toLocaleDateString();
+          if (!groupedByDate[day]) {
+            groupedByDate[day] = [log];
+          } else {
+            groupedByDate[day].push(log);
+          }
+        }
       });
 
       const dateJoined = new Date(user.created_at);
@@ -47,7 +66,9 @@ export const getAnalytics = createServerFn({ method: "GET" })
           log = { date: day, logs: groupedByDate[day] };
         } else {
           const veryLastLog = log.logs.sort(
-            (a, b) => new Date(b.created_at).getDate() - new Date(a.created_at).getDate(),
+            (a, b) =>
+              new Date(b.created_at).getDate() -
+              new Date(a.created_at).getDate()
           )[0];
           log.date = day;
           log.logs = [
@@ -77,7 +98,8 @@ export const getAnalytics = createServerFn({ method: "GET" })
 
       dataWithFilledDays.forEach((data) => {
         const totalMoney = data.logs.sort(
-          (a, b) => new Date(b.created_at).getDate() - new Date(a.created_at).getDate(),
+          (a, b) =>
+            new Date(b.created_at).getDate() - new Date(a.created_at).getDate()
         )[0].changes.current.totalMoney;
         let totalAdditions = 0;
         let totalDeductions = 0;
@@ -85,10 +107,12 @@ export const getAnalytics = createServerFn({ method: "GET" })
         data.logs.forEach((log) => {
           if (log.changes.current.amount < log.changes.prev.amount) {
             totalDeductions =
-              totalDeductions + (log.changes.prev.amount - log.changes.current.amount);
+              totalDeductions +
+              (log.changes.prev.amount - log.changes.current.amount);
           } else {
             totalAdditions =
-              totalAdditions + (log.changes.current.amount - log.changes.prev.amount);
+              totalAdditions +
+              (log.changes.current.amount - log.changes.prev.amount);
           }
         });
 
@@ -114,7 +138,9 @@ export const getAnalytics = createServerFn({ method: "GET" })
 
       logsByDate.forEach((data) => {
         if (!groupedByMonth[`${getMonth(data.date)}${getYear(data.date)}`]) {
-          groupedByMonth[`${getMonth(data.date)}${getYear(data.date)}`] = [data];
+          groupedByMonth[`${getMonth(data.date)}${getYear(data.date)}`] = [
+            data,
+          ];
         } else
           groupedByMonth[`${getMonth(data.date)}${getYear(data.date)}`] = [
             ...groupedByMonth[`${getMonth(data.date)}${getYear(data.date)}`],
@@ -136,10 +162,14 @@ export const getAnalytics = createServerFn({ method: "GET" })
         groupedByMonthArray.push({
           date: setDate(dateJoined, 1).toLocaleDateString(),
           totalMoney: groupedByMonth[key].sort(
-            (a, b) => new Date(b.date).getDate() - new Date(a.date).getDate(),
+            (a, b) => new Date(b.date).getDate() - new Date(a.date).getDate()
           )[0].totalMoney,
-          totalAdditions: _.sum(groupedByMonth[key].map((data) => data.totalAdditions)),
-          totalDeductions: _.sum(groupedByMonth[key].map((data) => data.totalDeductions)),
+          totalAdditions: _.sum(
+            groupedByMonth[key].map((data) => data.totalAdditions)
+          ),
+          totalDeductions: _.sum(
+            groupedByMonth[key].map((data) => data.totalDeductions)
+          ),
         });
         dateJoined.setDate(dateJoined.getMonth() + 1);
       }
@@ -162,32 +192,36 @@ export const getAnalytics = createServerFn({ method: "GET" })
       return Object.entries(groupedByMoney).map(([moneyId, logs]) => ({
         moneyId,
         logs: logs.sort(
-          (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+          (a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         ),
         totalAdditions: Math.abs(
           _.sum(
             logs.map((log) =>
               log.changes.current.amount < log.changes.prev.amount
                 ? 0
-                : log.changes.current.amount - log.changes.prev.amount,
-            ),
-          ),
+                : log.changes.current.amount - log.changes.prev.amount
+            )
+          )
         ),
         totalDeductions: Math.abs(
           _.sum(
             logs.map((log) =>
               log.changes.current.amount < log.changes.prev.amount
                 ? log.changes.prev.amount - log.changes.current.amount
-                : 0,
-            ),
-          ),
+                : 0
+            )
+          )
         ),
         currentData: logs.sort(
-          (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+          (a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         )[0].changes.current,
         fill:
           logs.sort(
-            (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+            (a, b) =>
+              new Date(b.created_at).getTime() -
+              new Date(a.created_at).getTime()
           )[0].changes.current.color ?? "var(--foreground)",
       }));
     }
