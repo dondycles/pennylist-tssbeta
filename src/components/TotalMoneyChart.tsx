@@ -76,7 +76,7 @@ export function TotalMoneyChart({
         });
   return (
     <Card className="border-b bg-transparent p-0 pb-4">
-      <CardHeader className="flex items-center gap-2 space-y-0 p-0 px-4 sm:flex-row">
+      <CardHeader className="flex items-start gap-2 space-y-0 p-0 px-4 sm:flex-row">
         <div className="grid flex-1 gap-1">
           <CardTitle>Changes</CardTitle>
           <CardDescription>
