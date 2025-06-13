@@ -55,21 +55,21 @@ export function TotalMoneyChart({
   return (
     <div className="896:space-y-4 -my-4 896:my-0">
       <FlowChartCard
+        key="totalMoney"
         data={data}
         dateJoined={dateJoined}
-        color="var(--chart-totalMoney)"
         dataKey="totalMoney"
       />
       <FlowChartCard
+        key="totalAdditions"
         data={data}
         dateJoined={dateJoined}
-        color="var(--chart-totalAdditions)"
         dataKey="totalAdditions"
       />
       <FlowChartCard
+        key="totalDeductions"
         data={data}
         dateJoined={dateJoined}
-        color="var(--chart-totalDeductions)"
         dataKey="totalDeductions"
       />
     </div>
@@ -79,12 +79,10 @@ export function TotalMoneyChart({
 function FlowChartCard({
   data,
   dateJoined,
-  color,
   dataKey,
 }: {
   data: Analytics;
   dateJoined: Date;
-  color: string;
   dataKey: string;
 }) {
   const id = React.useId();
@@ -109,7 +107,7 @@ function FlowChartCard({
           return date >= startDate;
         });
   return (
-    <Card className={`896:rounded-3xl bg-[${color}]/5 border-b 896:border`}>
+    <Card className={`896:rounded-3xl bg-muted/25 border-b 896:border`}>
       <CardHeader className="flex items-start gap-2 space-y-0 px-4 sm:flex-row">
         <div className="grid flex-1 gap-1">
           <CardTitle>Total Money Flow</CardTitle>
@@ -180,8 +178,16 @@ function FlowChartCard({
             <AreaChart data={filteredData}>
               <defs>
                 <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={color} stopOpacity={0.8} />
-                  <stop offset="95%" stopColor={color} stopOpacity={0.1} />
+                  <stop
+                    offset="5%"
+                    stopColor={`var(--chart-${dataKey})`}
+                    stopOpacity={0.8}
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor={`var(--chart-${dataKey})`}
+                    stopOpacity={0.1}
+                  />
                 </linearGradient>
               </defs>
               <CartesianGrid vertical={false} />
@@ -230,7 +236,7 @@ function FlowChartCard({
               />
               <Area
                 dataKey={dataKey}
-                stroke={color}
+                stroke={`var(--chart-${dataKey})`}
                 fill={`url(#${id})`}
                 stackId="a"
                 isAnimationActive={false}
