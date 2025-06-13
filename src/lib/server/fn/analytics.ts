@@ -34,25 +34,35 @@ export const getAnalytics = createServerFn({ method: "GET" })
       const groupedByDate: { [key: string]: typeof data } = {};
 
       data.forEach((log) => {
-        if (log.type === "transfer") {
-          if (log.transferDetails?.sender.id === log.moneyId) {
-            const day = new Date(log.created_at).toLocaleDateString();
-            if (!groupedByDate[day]) {
-              groupedByDate[day] = [log];
-            } else {
-              groupedByDate[day] = [...groupedByDate[day], log];
-            }
-          }
+        // For non-transfer logs, add them as usual
+        const day = new Date(log.created_at).toLocaleDateString();
+        if (!groupedByDate[day]) {
+          groupedByDate[day] = [log];
         } else {
-          // For non-transfer logs, add them as usual
-          const day = new Date(log.created_at).toLocaleDateString();
-          if (!groupedByDate[day]) {
-            groupedByDate[day] = [log];
-          } else {
-            groupedByDate[day].push(log);
-          }
+          groupedByDate[day].push(log);
         }
       });
+
+      //   data.forEach((log) => {
+      //   if (log.type === "transfer") {
+      //     if (log.transferDetails?.sender.id === log.moneyId) {
+      //       const day = new Date(log.created_at).toLocaleDateString();
+      //       if (!groupedByDate[day]) {
+      //         groupedByDate[day] = [log];
+      //       } else {
+      //         groupedByDate[day] = [...groupedByDate[day], log];
+      //       }
+      //     }
+      //   } else {
+      //     // For non-transfer logs, add them as usual
+      //     const day = new Date(log.created_at).toLocaleDateString();
+      //     if (!groupedByDate[day]) {
+      //       groupedByDate[day] = [log];
+      //     } else {
+      //       groupedByDate[day].push(log);
+      //     }
+      //   }
+      // });
 
       const dateJoined = new Date(user.created_at);
       const dataWithFilledDays: { date: string; logs: typeof data }[] = [];
@@ -105,14 +115,22 @@ export const getAnalytics = createServerFn({ method: "GET" })
         let totalDeductions = 0;
 
         data.logs.forEach((log) => {
-          if (log.changes.current.amount < log.changes.prev.amount) {
-            totalDeductions =
-              totalDeductions +
-              (log.changes.prev.amount - log.changes.current.amount);
+          if (log.type !== "transfer") {
+            if (log.changes.current.amount < log.changes.prev.amount) {
+              totalDeductions =
+                totalDeductions +
+                (log.changes.prev.amount - log.changes.current.amount);
+            } else {
+              totalAdditions =
+                totalAdditions +
+                (log.changes.current.amount - log.changes.prev.amount);
+            }
           } else {
-            totalAdditions =
-              totalAdditions +
-              (log.changes.current.amount - log.changes.prev.amount);
+            if (log.moneyId === log.transferDetails?.sender.id) {
+              totalDeductions =
+                totalDeductions +
+                _.sum(log.transferDetails.receivers.map((r) => r.fee ?? 0));
+            }
           }
         });
 
