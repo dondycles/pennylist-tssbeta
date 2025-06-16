@@ -45,7 +45,7 @@ const chartConfig = {
 type FilterState =
   | { type: "monthly"; freq?: "sincejoined" }
   | { type: "daily"; freq: "7" | "30" | "sincejoined" };
-export function TotalMoneyChart({
+export function MoneyFlowCharts({
   data,
   dateJoined,
 }: {
