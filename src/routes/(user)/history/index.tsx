@@ -7,6 +7,7 @@ import {
   DialogTrigger,
 } from "@/components/animate-ui/radix/dialog";
 import LogCard from "@/components/LogCard";
+import LogsMapper from "@/components/LogsMapper";
 import PageStatusSetter from "@/components/PageStatusSetter";
 import Scrollable from "@/components/Scrollable";
 import { Badge } from "@/components/ui/badge";
@@ -52,7 +53,7 @@ function RouteComponent() {
       <SearchInput />
       <Suspense
         fallback={
-          <div className="w-full space-y-4">
+          <div className="w-full 896:space-y-4">
             {Array.from({ length: 3 }).map((_, i) => (
               <div
                 key={`skeleton-${i}`}
@@ -211,80 +212,15 @@ function MoneyIds() {
 
 function Logs() {
   const { search, user } = Route.useRouteContext();
-  const logs = useSuspenseInfiniteQuery(
-    logsQueryOptions({
-      userId: user?.id,
-      flow: search.flow,
-      type: search.type,
-      money: search.money,
-      q: search.q,
-    })
-  );
-  const _logs = logs.data.pages.flatMap((page) => page);
 
-  const { ref, loaderRef } = useAutoLoadNextPage({
-    fetchNextPage: () => logs.fetchNextPage(),
-  });
   return (
     <div className="pb-32">
       {search.q ? (
-        !_logs.length ? (
-          <p className="text-muted-foreground text-center">
-            No results for "{search.q}"
-          </p>
-        ) : (
-          <>
-            <p className="text-muted-foreground text-center">
-              Results for "{search.q}"
-            </p>
-            {_logs.map((log, i) => {
-              if (i === _logs.length - 1)
-                return (
-                  <React.Fragment key={log.id}>
-                    <div ref={ref} className="flex-1" />
-                    <LogCard log={log} />
-                  </React.Fragment>
-                );
-              return <LogCard log={log} key={log.id} />;
-            })}
-            <Button
-              className="text-muted-foreground w-full text-center text-sm font-light"
-              hidden={!logs.hasNextPage}
-              ref={loaderRef}
-              variant={"ghost"}
-              onClick={() => {
-                logs.fetchNextPage();
-              }}
-            >
-              {logs.isFetchingNextPage ? "Loading..." : "Fetch more posts"}
-            </Button>
-          </>
-        )
-      ) : (
-        <>
-          {_logs.map((log, i) => {
-            if (i === _logs.length - 1)
-              return (
-                <React.Fragment key={log.id}>
-                  <div ref={ref} className="flex-1" />
-                  <LogCard log={log} />
-                </React.Fragment>
-              );
-            return <LogCard log={log} key={log.id} />;
-          })}
-          <Button
-            className="text-muted-foreground w-full text-center text-sm font-light"
-            hidden={!logs.hasNextPage}
-            ref={loaderRef}
-            variant={"ghost"}
-            onClick={() => {
-              logs.fetchNextPage();
-            }}
-          >
-            {logs.isFetchingNextPage ? "Loading..." : "Fetch more posts"}
-          </Button>
-        </>
-      )}
+        <p className="text-muted-foreground text-center mb-4">
+          Results for "{search.q}"
+        </p>
+      ) : null}
+      <LogsMapper search={search} user={user} />
     </div>
   );
 }

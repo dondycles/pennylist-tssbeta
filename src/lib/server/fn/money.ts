@@ -62,7 +62,7 @@ export const getMoneys = createServerFn({ method: "GET" })
       const { data, error } = await query;
       if (error) throw new Error(JSON.stringify(error, null, 2));
       return data;
-    },
+    }
   );
 
 export const getMoney = createServerFn({ method: "GET" })
@@ -78,15 +78,14 @@ export const getMoney = createServerFn({ method: "GET" })
       const supabase = getSupabaseServerClient();
       const { data, error } = await supabase
         .from("money")
-        .select("*, log(*)")
+        .select("*")
         .eq("userId", userId)
         .eq("id", id)
-        .order("created_at", { referencedTable: "log", ascending: false })
         .single();
       if (error) throw new Error(JSON.stringify(error, null, 2));
 
       return data;
-    },
+    }
   );
 
 export const getMoneyIds = createServerFn({ method: "GET" })
@@ -98,15 +97,20 @@ export const getMoneyIds = createServerFn({ method: "GET" })
       },
     }) => {
       const supabase = getSupabaseServerClient();
-      const { data, error } = await supabase.from("money").select().eq("userId", userId);
+      const { data, error } = await supabase
+        .from("money")
+        .select()
+        .eq("userId", userId);
       if (error) throw new Error(JSON.stringify(error, null, 2));
       return data;
-    },
+    }
   );
 
 export const addMoney = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
-  .validator(moneySchema.extend({ totalMoney: z.coerce.number().nonnegative() }))
+  .validator(
+    moneySchema.extend({ totalMoney: z.coerce.number().nonnegative() })
+  )
   .handler(async ({ data: moneyData }) => {
     const supabase = getSupabaseServerClient();
     const { data: insteredMoneyData, error } = await supabase
@@ -138,38 +142,47 @@ export const addMoney = createServerFn({ method: "POST" })
 
 export const editMoney = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
-  .validator(editMoneySchema.extend({ totalMoney: z.coerce.number().nonnegative() }))
-  .handler(async ({ data: { current, prev, totalMoney, reason }, context: { user } }) => {
-    const supabase = getSupabaseServerClient();
-    const { error } = await supabase
-      .from("money")
-      .update({
-        ...current,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", current.id)
-      .eq("userId", user.id);
-    if (error) throw new Error(error.message);
+  .validator(
+    editMoneySchema.extend({ totalMoney: z.coerce.number().nonnegative() })
+  )
+  .handler(
+    async ({
+      data: { current, prev, totalMoney, reason },
+      context: { user },
+    }) => {
+      const supabase = getSupabaseServerClient();
+      const { error } = await supabase
+        .from("money")
+        .update({
+          ...current,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", current.id)
+        .eq("userId", user.id);
+      if (error) throw new Error(error.message);
 
-    await addLog({
-      data: {
-        changes: {
-          current: {
-            ...current,
-            totalMoney: totalMoney + (current.amount - prev.amount),
+      await addLog({
+        data: {
+          changes: {
+            current: {
+              ...current,
+              totalMoney: totalMoney + (current.amount - prev.amount),
+            },
+            prev: { ...prev, totalMoney },
           },
-          prev: { ...prev, totalMoney },
+          moneyId: current.id,
+          type: "edit",
+          reason: reason ?? undefined,
         },
-        moneyId: current.id,
-        type: "edit",
-        reason: reason ?? undefined,
-      },
-    });
-  });
+      });
+    }
+  );
 
 export const deleteMoney = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
-  .validator(moneyWithIdSchema.extend({ totalMoney: z.coerce.number().nonnegative() }))
+  .validator(
+    moneyWithIdSchema.extend({ totalMoney: z.coerce.number().nonnegative() })
+  )
   .handler(async ({ data: moneyData, context: { user } }) => {
     const supabase = getSupabaseServerClient();
     const { error } = await supabase
@@ -204,49 +217,21 @@ export const deleteMoney = createServerFn({ method: "POST" })
 
 export const transferMoneys = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
-  .validator(transferSchema.extend({ totalMoney: z.coerce.number().nonnegative() }))
-  .handler(async ({ data: { receivers, sender, totalMoney }, context: { user } }) => {
-    const fees = _.sum(receivers.map((r) => r.fee ?? 0));
-    const cashIns = _.sum(receivers.map((r) => r.cashIn ?? 0));
-    const supabase = getSupabaseServerClient();
-    const { error } = await supabase
-      .from("money")
-      .update({
-        amount: sender.amount - fees - cashIns,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", sender.id)
-      .eq("userId", user.id);
-    if (error) throw new Error(error.message);
-
-    await addLog({
-      data: {
-        changes: {
-          current: {
-            ...sender,
-            amount: sender.amount - fees - cashIns,
-            totalMoney: totalMoney - fees,
-          },
-          prev: { ...sender, totalMoney },
-        },
-        moneyId: sender.id,
-        type: "transfer",
-        reason: sender.reason ?? undefined,
-        transferDetails: {
-          receivers,
-          sender,
-        },
-      },
-    });
-
-    for (const receiver of receivers) {
+  .validator(
+    transferSchema.extend({ totalMoney: z.coerce.number().nonnegative() })
+  )
+  .handler(
+    async ({ data: { receivers, sender, totalMoney }, context: { user } }) => {
+      const fees = _.sum(receivers.map((r) => r.fee ?? 0));
+      const cashIns = _.sum(receivers.map((r) => r.cashIn ?? 0));
+      const supabase = getSupabaseServerClient();
       const { error } = await supabase
         .from("money")
         .update({
-          amount: receiver.amount + (receiver.cashIn ?? 0),
+          amount: sender.amount - fees - cashIns,
           updated_at: new Date().toISOString(),
         })
-        .eq("id", receiver.id)
+        .eq("id", sender.id)
         .eq("userId", user.id);
       if (error) throw new Error(error.message);
 
@@ -254,20 +239,52 @@ export const transferMoneys = createServerFn({ method: "POST" })
         data: {
           changes: {
             current: {
-              ...receiver,
-              amount: receiver.amount + (receiver.cashIn ?? 0),
+              ...sender,
+              amount: sender.amount - fees - cashIns,
               totalMoney: totalMoney - fees,
             },
-            prev: { ...receiver, totalMoney: totalMoney },
+            prev: { ...sender, totalMoney },
           },
-          moneyId: receiver.id,
+          moneyId: sender.id,
           type: "transfer",
-          reason: receiver.reason ?? undefined,
+          reason: sender.reason ?? undefined,
           transferDetails: {
             receivers,
             sender,
           },
         },
       });
+
+      for (const receiver of receivers) {
+        const { error } = await supabase
+          .from("money")
+          .update({
+            amount: receiver.amount + (receiver.cashIn ?? 0),
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", receiver.id)
+          .eq("userId", user.id);
+        if (error) throw new Error(error.message);
+
+        await addLog({
+          data: {
+            changes: {
+              current: {
+                ...receiver,
+                amount: receiver.amount + (receiver.cashIn ?? 0),
+                totalMoney: totalMoney - fees,
+              },
+              prev: { ...receiver, totalMoney: totalMoney },
+            },
+            moneyId: receiver.id,
+            type: "transfer",
+            reason: receiver.reason ?? undefined,
+            transferDetails: {
+              receivers,
+              sender,
+            },
+          },
+        });
+      }
     }
-  });
+  );

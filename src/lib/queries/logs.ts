@@ -6,18 +6,18 @@ export const logsQueryOptions = ({
   flow,
   type,
   q,
-  money,
+  moneyId,
 }: {
   userId: string | undefined;
   flow?: "asc" | "desc";
   type?: "add" | "edit" | "delete" | "transfer";
   q?: string;
-  money?: string;
+  moneyId?: string;
 }) =>
   infiniteQueryOptions({
-    queryKey: ["logs", userId ?? "no-user", flow, type, money, q],
+    queryKey: ["logs", userId ?? "no-user", flow, type, moneyId, q],
     queryFn: async ({ signal, pageParam }) =>
-      await getLogs({ signal, data: { flow, type, money, q, pageParam } }),
+      await getLogs({ signal, data: { flow, type, moneyId, q, pageParam } }),
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages, lastPageParam) => {
       if (lastPage.length === 0) {

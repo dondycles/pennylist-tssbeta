@@ -55,34 +55,39 @@ export const getLogs = createServerFn({ method: "GET" })
     (data: {
       flow?: "asc" | "desc";
       type?: "add" | "edit" | "delete" | "transfer";
-      money?: string;
+      moneyId?: string;
       q?: string;
       pageParam?: number;
-    }) => data,
+    }) => data
   )
-  .handler(async ({ context: { user }, data: { flow, type, money, q, pageParam } }) => {
-    const supabase = getSupabaseServerClient();
-    const page = typeof pageParam === "number" ? pageParam : 0;
-    let query = supabase
-      .from("log")
-      .select("*, money(*)")
-      .eq("userId", user.id)
-      .order("created_at", {
-        ascending: flow === "asc" ? true : false,
-      })
-      .range(page * 4, page * 4 + 3);
+  .handler(
+    async ({
+      context: { user },
+      data: { flow, type, moneyId, q, pageParam },
+    }) => {
+      const supabase = getSupabaseServerClient();
+      const page = typeof pageParam === "number" ? pageParam : 0;
+      let query = supabase
+        .from("log")
+        .select("*, money(*)")
+        .eq("userId", user.id)
+        .order("created_at", {
+          ascending: flow === "asc" ? true : false,
+        })
+        .range(page * 4, page * 4 + 3);
 
-    if (q) {
-      query = query.ilike("reason", `%${q}%`);
-    }
-    if (type) {
-      query = query.ilike("type", `%${type}%`);
-    }
-    if (money) {
-      query = query.eq("moneyId", money);
-    }
+      if (q) {
+        query = query.ilike("reason", `%${q}%`);
+      }
+      if (type) {
+        query = query.ilike("type", `%${type}%`);
+      }
+      if (moneyId) {
+        query = query.eq("moneyId", moneyId);
+      }
 
-    const { data, error } = await query;
-    if (error) throw new Error(JSON.stringify(error, null, 2));
-    return data;
-  });
+      const { data, error } = await query;
+      if (error) throw new Error(JSON.stringify(error, null, 2));
+      return data;
+    }
+  );
