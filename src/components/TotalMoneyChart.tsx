@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/chart";
 import { Analytics } from "@/lib/server/fn/analytics";
 import { differenceInCalendarDays } from "date-fns";
-import { Check } from "lucide-react";
+import { BanknoteArrowDown, BanknoteArrowUp, Check, Coins } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -55,18 +55,36 @@ export function TotalMoneyChart({
   return (
     <div className="896:space-y-4 -my-4 896:my-0">
       <FlowChartCard
+        title={
+          <div className="space-x-2">
+            <Coins className="inline" />
+            <span>Total Money Flow</span>
+          </div>
+        }
         key="totalMoney"
         data={data}
         dateJoined={dateJoined}
         dataKey="totalMoney"
       />
       <FlowChartCard
+        title={
+          <div className="space-x-2">
+            <BanknoteArrowUp className="inline mb-1" />
+            <span>Income Flow</span>
+          </div>
+        }
         key="totalAdditions"
         data={data}
         dateJoined={dateJoined}
         dataKey="totalAdditions"
       />
       <FlowChartCard
+        title={
+          <div className="space-x-2">
+            <BanknoteArrowDown className="inline mb-1" />
+            <span>Outgoing Flow</span>
+          </div>
+        }
         key="totalDeductions"
         data={data}
         dateJoined={dateJoined}
@@ -80,10 +98,12 @@ function FlowChartCard({
   data,
   dateJoined,
   dataKey,
+  title,
 }: {
   data: Analytics;
   dateJoined: Date;
   dataKey: string;
+  title: React.ReactNode;
 }) {
   const id = React.useId();
   const [filter, setFilter] = React.useState<FilterState>({
@@ -113,7 +133,7 @@ function FlowChartCard({
     >
       <CardHeader className="flex items-start gap-2 space-y-0 px-4 sm:flex-row">
         <div className="grid flex-1 gap-1">
-          <CardTitle>Total Money Flow</CardTitle>
+          <CardTitle>{title}</CardTitle>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger className="capitalize" asChild>

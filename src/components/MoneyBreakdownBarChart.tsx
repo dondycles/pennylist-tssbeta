@@ -14,7 +14,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { Analytics } from "@/lib/server/fn/analytics";
-import { Check } from "lucide-react";
+import { Check, Layers } from "lucide-react";
 import { useState } from "react";
 import {
   DropdownMenu,
@@ -48,7 +48,10 @@ export function MoneyBreakdownBarChart({ data }: { data: Analytics }) {
     <Card className="bg-muted/25 896:rounded-3xl border-b 896:border">
       <CardHeader className="flex items-start gap-2 space-y-0 p-0 px-4 sm:flex-row">
         <div className="grid flex-1 gap-1">
-          <CardTitle>Money Breakdown</CardTitle>
+          <CardTitle className="space-x-2">
+            <Layers className="inline" />
+            <span>Money Breakdown</span>
+          </CardTitle>
           <CardDescription>
             {type === "total" && "Showing the current total of each money"}
             {type === "incomings" &&
