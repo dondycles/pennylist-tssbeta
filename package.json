@@ -8,6 +8,7 @@
     "build": "vite build"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
     "@serwist/window": "^9.0.15",
     "@types/bun": "latest",
     "@types/lodash": "^4.17.17",

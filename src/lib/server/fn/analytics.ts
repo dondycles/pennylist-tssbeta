@@ -1,254 +1,230 @@
-import { authMiddleware } from "@/lib/middleware/auth-guard";
-import { createServerFn } from "@tanstack/react-start";
+import { authMiddleware } from "@/lib/middleware/auth-guard"
+import { createServerFn } from "@tanstack/react-start"
 import {
-  differenceInCalendarDays,
-  differenceInMonths,
-  getMonth,
-  getYear,
-  setDate,
-} from "date-fns";
-import _ from "lodash";
-import { getSupabaseServerClient } from "../supabase";
+	differenceInCalendarDays,
+	differenceInMonths,
+	getMonth,
+	getYear,
+	setDate,
+} from "date-fns"
+import _ from "lodash"
+import { getSupabaseServerClient } from "../supabase"
 
 export const getAnalytics = createServerFn({ method: "GET" })
-  .middleware([authMiddleware])
-  .handler(async ({ context: { user } }) => {
-    const supabase = getSupabaseServerClient();
-    const { data, error } = await supabase
-      .from("log")
-      .select("*, money(*)")
-      .eq("userId", user.id)
-      .order("created_at", {
-        ascending: false,
-      });
+	.middleware([authMiddleware])
+	.handler(async ({ context: { user } }) => {
+		const supabase = getSupabaseServerClient()
+		const { data, error } = await supabase
+			.from("log")
+			.select("*, money(*)")
+			.eq("userId", user.id)
+			.order("created_at", {
+				ascending: false,
+			})
 
-    if (error) throw new Error(JSON.stringify(error, null, 2));
+		if (error) throw new Error(JSON.stringify(error, null, 2))
 
-    const daysSinceJoined = differenceInCalendarDays(
-      new Date(),
-      user.created_at
-    );
-    const monthsSinceJoined = differenceInMonths(new Date(), user.created_at);
-    function groupLogsByDate() {
-      if (!data?.length) return null;
-      const groupedByDate: { [key: string]: typeof data } = {};
+		const daysSinceJoined = differenceInCalendarDays(
+			new Date(),
+			user.created_at
+		)
+		const monthsSinceJoined = differenceInMonths(new Date(), user.created_at)
+		function groupLogsByDate() {
+			if (!data?.length) return null
+			const groupedByDate: { [key: string]: typeof data } = {}
 
-      data.forEach((log) => {
-        // For non-transfer logs, add them as usual
-        const day = new Date(log.created_at).toLocaleDateString();
-        if (!groupedByDate[day]) {
-          groupedByDate[day] = [log];
-        } else {
-          groupedByDate[day].push(log);
-        }
-      });
+			for (const log of data) {
+				// For non-transfer logs, add them as usual
+				const day = new Date(log.created_at).toLocaleDateString()
+				if (!groupedByDate[day]) {
+					groupedByDate[day] = [log]
+				} else {
+					groupedByDate[day].push(log)
+				}
+			}
 
-      //   data.forEach((log) => {
-      //   if (log.type === "transfer") {
-      //     if (log.transferDetails?.sender.id === log.moneyId) {
-      //       const day = new Date(log.created_at).toLocaleDateString();
-      //       if (!groupedByDate[day]) {
-      //         groupedByDate[day] = [log];
-      //       } else {
-      //         groupedByDate[day] = [...groupedByDate[day], log];
-      //       }
-      //     }
-      //   } else {
-      //     // For non-transfer logs, add them as usual
-      //     const day = new Date(log.created_at).toLocaleDateString();
-      //     if (!groupedByDate[day]) {
-      //       groupedByDate[day] = [log];
-      //     } else {
-      //       groupedByDate[day].push(log);
-      //     }
-      //   }
-      // });
+			const dateJoined = new Date(user.created_at)
+			const dataWithFilledDays: { date: string; logs: typeof data }[] = []
+			let log: (typeof dataWithFilledDays)[number] = {
+				date: "",
+				logs: [],
+			}
+			for (let i = 0; i <= daysSinceJoined; i++) {
+				const day = dateJoined.toLocaleDateString()
+				if (groupedByDate[day] !== undefined) {
+					log = { date: day, logs: groupedByDate[day] }
+				} else {
+					const veryLastLog = log.logs.sort(
+						(a, b) =>
+							new Date(b.created_at).getDate() -
+							new Date(a.created_at).getDate()
+					)[0]
+					log.date = day
+					log.logs = [
+						{
+							...veryLastLog,
+							changes: {
+								current: {
+									amount: 0,
+									name: "",
+									totalMoney: log.logs[0].changes.current.totalMoney,
+								},
+								prev: { amount: 0, name: "", totalMoney: 0 },
+							},
+						},
+					]
+				}
+				dataWithFilledDays.push({ ...log })
+				dateJoined.setDate(dateJoined.getDate() + 1)
+			}
 
-      const dateJoined = new Date(user.created_at);
-      const dataWithFilledDays: { date: string; logs: typeof data }[] = [];
-      let log: (typeof dataWithFilledDays)[number] = {
-        date: "",
-        logs: [],
-      };
-      for (let i = 0; i <= daysSinceJoined; i++) {
-        const day = dateJoined.toLocaleDateString();
-        if (groupedByDate[day] !== undefined) {
-          log = { date: day, logs: groupedByDate[day] };
-        } else {
-          const veryLastLog = log.logs.sort(
-            (a, b) =>
-              new Date(b.created_at).getDate() -
-              new Date(a.created_at).getDate()
-          )[0];
-          log.date = day;
-          log.logs = [
-            {
-              ...veryLastLog,
-              changes: {
-                current: {
-                  amount: 0,
-                  name: "",
-                  totalMoney: log.logs[0].changes.current.totalMoney,
-                },
-                prev: { amount: 0, name: "", totalMoney: 0 },
-              },
-            },
-          ];
-        }
-        dataWithFilledDays.push({ ...log });
-        dateJoined.setDate(dateJoined.getDate() + 1);
-      }
+			const summary: {
+				date: string
+				totalMoney: number
+				totalAdditions: number
+				totalDeductions: number
+			}[] = []
 
-      const summary: {
-        date: string;
-        totalMoney: number;
-        totalAdditions: number;
-        totalDeductions: number;
-      }[] = [];
+			for (const data of dataWithFilledDays) {
+				const totalMoney = data.logs.sort(
+					(a, b) =>
+						new Date(b.created_at).getDate() - new Date(a.created_at).getDate()
+				)[0].changes.current.totalMoney
+				let totalAdditions = 0
+				let totalDeductions = 0
 
-      dataWithFilledDays.forEach((data) => {
-        const totalMoney = data.logs.sort(
-          (a, b) =>
-            new Date(b.created_at).getDate() - new Date(a.created_at).getDate()
-        )[0].changes.current.totalMoney;
-        let totalAdditions = 0;
-        let totalDeductions = 0;
+				for (const log of data.logs) {
+					if (log.type !== "transfer") {
+						if (log.changes.current.amount < log.changes.prev.amount) {
+							totalDeductions =
+								totalDeductions +
+								(log.changes.prev.amount - log.changes.current.amount)
+						} else {
+							totalAdditions =
+								totalAdditions +
+								(log.changes.current.amount - log.changes.prev.amount)
+						}
+					} else {
+						if (log.moneyId === log.transferDetails?.sender.id) {
+							totalDeductions =
+								totalDeductions +
+								_.sum(log.transferDetails.receivers.map(r => r.fee ?? 0))
+						}
+					}
+				}
 
-        data.logs.forEach((log) => {
-          if (log.type !== "transfer") {
-            if (log.changes.current.amount < log.changes.prev.amount) {
-              totalDeductions =
-                totalDeductions +
-                (log.changes.prev.amount - log.changes.current.amount);
-            } else {
-              totalAdditions =
-                totalAdditions +
-                (log.changes.current.amount - log.changes.prev.amount);
-            }
-          } else {
-            if (log.moneyId === log.transferDetails?.sender.id) {
-              totalDeductions =
-                totalDeductions +
-                _.sum(log.transferDetails.receivers.map((r) => r.fee ?? 0));
-            }
-          }
-        });
+				summary.push({
+					date: data.date,
+					totalMoney,
+					totalAdditions,
+					totalDeductions,
+				})
+			}
 
-        summary.push({
-          date: data.date,
-          totalMoney,
-          totalAdditions,
-          totalDeductions,
-        });
-      });
+			return summary
+		}
 
-      return summary;
-    }
+		function groupLogsByMonth() {
+			const groupedByMonth: {
+				[key: string]: NonNullable<ReturnType<typeof groupLogsByDate>>
+			} = {}
 
-    function groupLogsByMonth() {
-      const groupedByMonth: {
-        [key: string]: NonNullable<ReturnType<typeof groupLogsByDate>>;
-      } = {};
+			const logsByDate = groupLogsByDate()
 
-      const logsByDate = groupLogsByDate();
+			if (!logsByDate) return null
+			for (const data of logsByDate) {
+				if (!groupedByMonth[`${getMonth(data.date)}${getYear(data.date)}`]) {
+					groupedByMonth[`${getMonth(data.date)}${getYear(data.date)}`] = [data]
+				} else
+					groupedByMonth[`${getMonth(data.date)}${getYear(data.date)}`] = [
+						...groupedByMonth[`${getMonth(data.date)}${getYear(data.date)}`],
+						data,
+					]
+			}
 
-      if (!logsByDate) return null;
+			const dateJoined = new Date(user.created_at)
 
-      logsByDate.forEach((data) => {
-        if (!groupedByMonth[`${getMonth(data.date)}${getYear(data.date)}`]) {
-          groupedByMonth[`${getMonth(data.date)}${getYear(data.date)}`] = [
-            data,
-          ];
-        } else
-          groupedByMonth[`${getMonth(data.date)}${getYear(data.date)}`] = [
-            ...groupedByMonth[`${getMonth(data.date)}${getYear(data.date)}`],
-            data,
-          ];
-      });
+			const groupedByMonthArray: {
+				date: string
+				totalMoney: number
+				totalAdditions: number
+				totalDeductions: number
+			}[] = []
 
-      const dateJoined = new Date(user.created_at);
+			for (let i = 0; i <= monthsSinceJoined; i++) {
+				const key = `${getMonth(dateJoined)}${getYear(dateJoined)}`
+				groupedByMonthArray.push({
+					date: setDate(dateJoined, 1).toLocaleDateString(),
+					totalMoney: groupedByMonth[key].sort(
+						(a, b) => new Date(b.date).getDate() - new Date(a.date).getDate()
+					)[0].totalMoney,
+					totalAdditions: _.sum(
+						groupedByMonth[key].map(data => data.totalAdditions)
+					),
+					totalDeductions: _.sum(
+						groupedByMonth[key].map(data => data.totalDeductions)
+					),
+				})
+				dateJoined.setDate(dateJoined.getMonth() + 1)
+			}
+			return groupedByMonthArray
+		}
 
-      const groupedByMonthArray: {
-        date: string;
-        totalMoney: number;
-        totalAdditions: number;
-        totalDeductions: number;
-      }[] = [];
+		function groupsLogsByMoney() {
+			if (!data?.length) return null
 
-      for (let i = 0; i <= monthsSinceJoined; i++) {
-        const key = `${getMonth(dateJoined)}${getYear(dateJoined)}`;
-        groupedByMonthArray.push({
-          date: setDate(dateJoined, 1).toLocaleDateString(),
-          totalMoney: groupedByMonth[key].sort(
-            (a, b) => new Date(b.date).getDate() - new Date(a.date).getDate()
-          )[0].totalMoney,
-          totalAdditions: _.sum(
-            groupedByMonth[key].map((data) => data.totalAdditions)
-          ),
-          totalDeductions: _.sum(
-            groupedByMonth[key].map((data) => data.totalDeductions)
-          ),
-        });
-        dateJoined.setDate(dateJoined.getMonth() + 1);
-      }
-      return groupedByMonthArray;
-    }
+			const groupedByMoney: { [key: string]: typeof data } = {}
+			for (const log of data) {
+				if (log.moneyId === null) return
+				if (!groupedByMoney[log.moneyId]) {
+					groupedByMoney[log.moneyId] = [log]
+				} else {
+					groupedByMoney[log.moneyId].push(log)
+				}
+			}
 
-    function groupsLogsByMoney() {
-      if (!data?.length) return null;
+			return Object.entries(groupedByMoney).map(([moneyId, logs]) => ({
+				moneyId,
+				logs: logs.sort(
+					(a, b) =>
+						new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+				),
+				totalAdditions: Math.abs(
+					_.sum(
+						logs.map(log =>
+							log.changes.current.amount < log.changes.prev.amount
+								? 0
+								: log.changes.current.amount - log.changes.prev.amount
+						)
+					)
+				),
+				totalDeductions: Math.abs(
+					_.sum(
+						logs.map(log =>
+							log.changes.current.amount < log.changes.prev.amount
+								? log.changes.prev.amount - log.changes.current.amount
+								: 0
+						)
+					)
+				),
+				currentData: logs.sort(
+					(a, b) =>
+						new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+				)[0].changes.current,
+				fill:
+					logs.sort(
+						(a, b) =>
+							new Date(b.created_at).getTime() -
+							new Date(a.created_at).getTime()
+					)[0].changes.current.color ?? "var(--foreground)",
+			}))
+		}
 
-      const groupedByMoney: { [key: string]: typeof data } = {};
-      data.forEach((log) => {
-        if (log.moneyId === null) return;
-        if (!groupedByMoney[log.moneyId]) {
-          groupedByMoney[log.moneyId] = [log];
-        } else {
-          groupedByMoney[log.moneyId].push(log);
-        }
-      });
+		return {
+			groupLogsByMonth: groupLogsByMonth(),
+			groupLogsByDate: groupLogsByDate(),
+			groupsLogsByMoney: groupsLogsByMoney(),
+		}
+	})
 
-      return Object.entries(groupedByMoney).map(([moneyId, logs]) => ({
-        moneyId,
-        logs: logs.sort(
-          (a, b) =>
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        ),
-        totalAdditions: Math.abs(
-          _.sum(
-            logs.map((log) =>
-              log.changes.current.amount < log.changes.prev.amount
-                ? 0
-                : log.changes.current.amount - log.changes.prev.amount
-            )
-          )
-        ),
-        totalDeductions: Math.abs(
-          _.sum(
-            logs.map((log) =>
-              log.changes.current.amount < log.changes.prev.amount
-                ? log.changes.prev.amount - log.changes.current.amount
-                : 0
-            )
-          )
-        ),
-        currentData: logs.sort(
-          (a, b) =>
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        )[0].changes.current,
-        fill:
-          logs.sort(
-            (a, b) =>
-              new Date(b.created_at).getTime() -
-              new Date(a.created_at).getTime()
-          )[0].changes.current.color ?? "var(--foreground)",
-      }));
-    }
-
-    return {
-      groupLogsByMonth: groupLogsByMonth(),
-      groupLogsByDate: groupLogsByDate(),
-      groupsLogsByMoney: groupsLogsByMoney(),
-    };
-  });
-
-export type Analytics = Awaited<ReturnType<typeof getAnalytics>>;
+export type Analytics = Awaited<ReturnType<typeof getAnalytics>>
