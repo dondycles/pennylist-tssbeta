@@ -12,10 +12,10 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools"
 
 import { Toaster } from "@/components/ui/sonner"
 import { userQueryOptions } from "@/lib/queries/user"
-import type { getUser } from "@/lib/server/fn/user"
 import { useEffect } from "react"
 import { getSerwist } from "virtual:serwist"
 import appCss from "@/app.css?url"
+import type { getUser } from "@/lib/server/fn/user"
 
 export const Route = createRootRouteWithContext<{
 	queryClient: QueryClient
@@ -35,11 +35,12 @@ export const Route = createRootRouteWithContext<{
 				content: "width=device-width, initial-scale=1",
 			},
 			{
-				title: "pennylist.",
+				title:
+					"pennylist. | Avoid becoming penniless, start using pennylist.app.",
 			},
 			{
 				name: "description",
-				content: "Avoid becoming penniless, start using pennylist.",
+				content: "App to Track Every Penny",
 			},
 			{ name: "theme-color", content: "#000000" },
 			{ name: "background-color", content: "#000000" },

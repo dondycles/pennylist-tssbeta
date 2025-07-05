@@ -47,9 +47,7 @@ function Home() {
 				<h1 className="font-bold text-4xl sm:text-6xl">
 					Avoid becoming penniless, start using pennylist.
 				</h1>
-				<p className="text-muted-foreground">
-					Designed to be your private financial manager.
-				</p>
+				<p className="text-muted-foreground">App to track every penny.</p>
 				{user ? (
 					<div className="flex justify-center gap-2">
 						<Button type="button" asChild className="mb-2 w-fit">
