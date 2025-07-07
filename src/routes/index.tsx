@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Link, createFileRoute } from "@tanstack/react-router"
 
 export const Route = createFileRoute("/")({
+	ssr: true,
 	component: Home,
 	loader: ({ context }) => {
 		return { user: context.user }
@@ -45,9 +46,11 @@ function Home() {
 					className="mb-16 size-32 not-dark:invert"
 				/>
 				<h1 className="font-bold text-4xl sm:text-6xl">
-					Avoid becoming penniless, start using pennylist.
+					List and track every penny
 				</h1>
-				<p className="text-muted-foreground">App to track every penny.</p>
+				<p className="text-muted-foreground">
+					Avoid becoming penniless, start using pennylist!
+				</p>
 				{user ? (
 					<div className="flex justify-center gap-2">
 						<Button type="button" asChild className="mb-2 w-fit">

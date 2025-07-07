@@ -35,12 +35,11 @@ export const Route = createRootRouteWithContext<{
 				content: "width=device-width, initial-scale=1",
 			},
 			{
-				title:
-					"pennylist. | Avoid becoming penniless, start using pennylist.app.",
+				title: "pennylist. | App to Track and List Every Penny",
 			},
 			{
 				name: "description",
-				content: "App to Track Every Penny",
+				content: "List and Track Every Penny",
 			},
 			{ name: "theme-color", content: "#000000" },
 			{ name: "background-color", content: "#000000" },
