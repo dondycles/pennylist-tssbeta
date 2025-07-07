@@ -35,7 +35,7 @@ export const Route = createRootRouteWithContext<{
 				content: "width=device-width, initial-scale=1",
 			},
 			{
-				title: "pennylist. | App to Track and List Every Penny",
+				title: "pennylist. | List and Track Every Penny",
 			},
 			{
 				name: "description",
@@ -45,6 +45,15 @@ export const Route = createRootRouteWithContext<{
 			{ name: "background-color", content: "#000000" },
 			{ name: "display", content: "standalone" },
 			{ name: "mobile-web-app-capable", content: "yes" },
+			{ name: "og:title", content: "pennylist." },
+			{ name: "og:description", content: "List and track every penny." },
+			{ name: "og:site_name", content: "pennylist." },
+			{ name: "og:image", content: "https://pennylist.app/summary.png" },
+			{ name: "og:url", content: "https://pennylist.app" },
+			{ name: "twitter:image", content: "https://pennylist.app/summary.png" },
+			{ name: "twitter:card", content: "summary_large_image" },
+			{ name: "twitter:title", content: "pennylist." },
+			{ name: "twitter:description", content: "List and track every penny." },
 		],
 		links: [
 			{ rel: "stylesheet", href: appCss },
